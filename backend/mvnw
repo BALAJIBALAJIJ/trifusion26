@@ -1,0 +1,46 @@
+#!/bin/sh
+# Maven Wrapper Script
+# This script downloads and runs Maven using the Maven Wrapper.
+# It is used when 'mvn' is not installed on the system.
+
+set -euo pipefail
+
+# Determine project base directory
+MAVEN_PROJECTBASEDIR="${MAVEN_BASEDIR:-$(cd "$(dirname "$0")" && pwd)}"
+
+MAVEN_WRAPPER_PROPERTIES_PATH="${MAVEN_PROJECTBASEDIR}/.mvn/wrapper/maven-wrapper.properties"
+
+if [ -f "${MAVEN_WRAPPER_PROPERTIES_PATH}" ]; then
+    distributionUrl=$(grep "distributionUrl" "${MAVEN_WRAPPER_PROPERTIES_PATH}" | cut -d'=' -f2-)
+else
+    distributionUrl="https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.6/apache-maven-3.9.6-bin.zip"
+fi
+
+MAVEN_HOME="${HOME}/.m2/wrapper/dists/$(basename ${distributionUrl} .zip)"
+
+if [ ! -d "${MAVEN_HOME}" ]; then
+    echo "Downloading Maven from ${distributionUrl}..."
+    mkdir -p "${MAVEN_HOME}"
+    
+    if command -v curl > /dev/null 2>&1; then
+        curl -fsSL "${distributionUrl}" -o "/tmp/maven.zip"
+    elif command -v wget > /dev/null 2>&1; then
+        wget -q "${distributionUrl}" -O "/tmp/maven.zip"
+    else
+        echo "Error: Neither curl nor wget found. Cannot download Maven."
+        exit 1
+    fi
+    
+    unzip -q "/tmp/maven.zip" -d "${MAVEN_HOME}"
+    rm -f "/tmp/maven.zip"
+fi
+
+MAVEN_CMD=$(find "${MAVEN_HOME}" -name "mvn" -path "*/bin/mvn" | head -1)
+
+if [ -z "${MAVEN_CMD}" ]; then
+    echo "Error: Maven executable not found in ${MAVEN_HOME}"
+    exit 1
+fi
+
+chmod +x "${MAVEN_CMD}"
+exec "${MAVEN_CMD}" "$@"
