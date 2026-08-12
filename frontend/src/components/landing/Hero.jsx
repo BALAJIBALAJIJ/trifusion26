@@ -87,27 +87,27 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mb-4 px-4 md:px-6 py-4 rounded-2xl border border-primary/20 bg-primary/5 backdrop-blur-sm max-w-3xl mx-auto animate-pcb-glow"
+            className="mb-4 px-3 sm:px-4 md:px-6 py-4 rounded-2xl border border-primary/20 bg-primary/5 backdrop-blur-sm max-w-3xl mx-auto animate-pcb-glow w-full"
           >
-            <div className="flex items-center gap-4 md:gap-6">
-              {/* College Logo - LEFT side */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 md:gap-6">
+              {/* College Logo */}
               <motion.img
                 src="/assets/college-logo.png"
                 alt="Shree Venkateshwara Hi-Tech Engineering College Logo"
-                className="w-20 h-20 md:w-28 md:h-28 object-contain flex-shrink-0"
+                className="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 object-contain flex-shrink-0"
                 initial={{ opacity: 0, scale: 0.5, rotate: -10 }}
                 animate={{ opacity: 1, scale: 1, rotate: 0 }}
                 transition={{ duration: 1, ease: 'easeOut' }}
                 whileHover={{ scale: 1.05, rotate: 3 }}
               />
 
-              {/* College Details - RIGHT side */}
-              <div className="text-left">
-                <h2 className="text-base md:text-xl lg:text-2xl font-heading font-bold text-white tracking-wide leading-tight">SHREE VENKATESHWARA HI-TECH ENGINEERING COLLEGE</h2>
-                <p className="text-primary font-heading font-semibold text-xs md:text-sm mt-1 tracking-widest">AUTONOMOUS</p>
-                <p className="text-gray-400 text-[10px] md:text-xs mt-1.5 leading-relaxed">Approved by AICTE, New Delhi & Affiliated to Anna University, Chennai</p>
-                <p className="text-gray-400 text-[10px] md:text-xs leading-relaxed">Accredited by NAAC with 'A' Grade & NBA</p>
-                <p className="text-gray-500 text-[10px] md:text-xs mt-1">Gobichettipalayam, Erode District, Tamilnadu, India</p>
+              {/* College Details */}
+              <div className="text-center sm:text-left">
+                <h2 className="text-[12px] leading-tight sm:text-base md:text-xl lg:text-2xl font-heading font-bold text-white tracking-wide">SHREE VENKATESHWARA HI-TECH ENGINEERING COLLEGE</h2>
+                <p className="text-primary font-heading font-semibold text-[10px] sm:text-xs md:text-sm mt-1 tracking-widest">AUTONOMOUS</p>
+                <p className="text-gray-400 text-[8px] sm:text-[10px] md:text-xs mt-1.5 leading-relaxed">Approved by AICTE, New Delhi & Affiliated to Anna University, Chennai</p>
+                <p className="text-gray-400 text-[8px] sm:text-[10px] md:text-xs leading-relaxed">Accredited by NAAC with 'A' Grade & NBA</p>
+                <p className="text-gray-500 text-[8px] sm:text-[10px] md:text-xs mt-1">Gobichettipalayam, Erode District, Tamilnadu, India</p>
               </div>
             </div>
           </motion.div>
@@ -117,7 +117,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="mb-4 flex items-center justify-center gap-3 md:gap-6 flex-wrap"
+            className="mb-6 flex items-center justify-center gap-2 sm:gap-3 md:gap-6 flex-wrap"
           >
             {[
               { src: '/assets/iic-logo.png', alt: "Institution's Innovation Council", delay: 0 },
@@ -129,7 +129,7 @@ const Hero = () => {
                 key={index}
                 src={logo.src}
                 alt={logo.alt}
-                className="h-10 md:h-14 object-contain rounded-lg bg-white/90 px-2 py-1"
+                className="h-7 sm:h-10 md:h-14 object-contain rounded-lg bg-white/90 px-1.5 py-1"
                 initial={{ opacity: 0, scale: 0.6, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 + logo.delay, ease: 'easeOut' }}
@@ -141,16 +141,16 @@ const Hero = () => {
           {/* TRIFUSION Logo with enhanced glow */}
           <motion.div
             animate={{ 
-              filter: ['drop-shadow(0 0 25px rgba(6,182,212,0.4))', 'drop-shadow(0 0 45px rgba(139,92,246,0.5))', 'drop-shadow(0 0 25px rgba(6,182,212,0.4))']
+              filter: ['drop-shadow(0 0 15px rgba(6,182,212,0.3))', 'drop-shadow(0 0 30px rgba(139,92,246,0.4))', 'drop-shadow(0 0 15px rgba(6,182,212,0.3))']
             }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <img src="/assets/trifusion-logo.png" alt="TRIFUSION'26 Logo" className="w-72 h-72 md:w-96 md:h-96 object-contain mx-auto mb-4" />
+            <img src="/assets/trifusion-logo.png" alt="TRIFUSION'26 Logo" className="w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 object-contain mx-auto mb-4" />
           </motion.div>
           
           {/* Title with neon effect */}
           <motion.h1 
-            className="text-6xl md:text-8xl font-heading font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent"
+            className="text-4xl sm:text-6xl md:text-8xl font-heading font-black mb-2 text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent"
             animate={{
               backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
             }}
@@ -161,7 +161,7 @@ const Hero = () => {
           </motion.h1>
           
           {/* Tagline with typewriter feel */}
-          <div className="text-xl md:text-3xl font-body text-gray-300 max-w-3xl mx-auto mt-4 font-light h-10 overflow-hidden">
+          <div className="text-lg sm:text-xl md:text-3xl font-body text-gray-300 max-w-3xl mx-auto mt-2 md:mt-4 font-light h-8 md:h-10 overflow-hidden">
             <motion.span 
               className="inline-block"
               animate={{ opacity: [0.5, 1, 0.5] }}
@@ -177,7 +177,7 @@ const Hero = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="flex gap-4 mb-12 justify-center flex-wrap"
+          className="flex gap-2 sm:gap-4 mb-8 md:mb-12 justify-center flex-wrap"
         >
           {[
             { label: 'ECE', color: 'primary', shadow: 'rgba(6,182,212,0.3)' },
@@ -186,7 +186,7 @@ const Hero = () => {
           ].map((dept, i) => (
             <motion.span
               key={dept.label}
-              className={`px-4 py-2 bg-dark-card/80 border border-${dept.color}/40 rounded-lg text-${dept.color} font-heading font-bold`}
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 bg-dark-card/80 border border-${dept.color}/40 rounded-lg text-${dept.color} text-sm sm:text-base font-heading font-bold`}
               whileHover={{ scale: 1.1, y: -3 }}
               animate={{
                 boxShadow: [
@@ -228,11 +228,11 @@ const Hero = () => {
               {Object.entries(timeLeft).map(([unit, value], idx) => (
                 <motion.div 
                   key={unit} 
-                  className="flex flex-col items-center p-3 md:p-4 bg-dark-surface/60 backdrop-blur-md rounded-xl border border-gray-700 group hover:border-primary/40 transition-colors"
+                  className="flex flex-col items-center p-2 sm:p-3 md:p-4 bg-dark-surface/60 backdrop-blur-md rounded-xl border border-gray-700 group hover:border-primary/40 transition-colors"
                   whileHover={{ scale: 1.05, y: -3 }}
                 >
                   <motion.span 
-                    className="text-3xl md:text-5xl font-heading font-bold text-white"
+                    className="text-2xl sm:text-3xl md:text-5xl font-heading font-bold text-white"
                     key={value}
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -240,7 +240,7 @@ const Hero = () => {
                   >
                     {value.toString().padStart(2, '0')}
                   </motion.span>
-                  <span className="text-xs md:text-sm text-gray-400 uppercase tracking-widest mt-1">{unit}</span>
+                  <span className="text-[10px] sm:text-xs md:text-sm text-gray-400 uppercase tracking-widest mt-1">{unit}</span>
                 </motion.div>
               ))}
             </div>
