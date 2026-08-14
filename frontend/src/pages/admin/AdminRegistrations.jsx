@@ -5,26 +5,39 @@ import DataTable from '../../components/admin/DataTable';
 import StatusBadge from '../../components/admin/StatusBadge';
 import * as XLSX from 'xlsx';
 
-// Helper to get registrations that have completed payment
-const getPaidRegistrations = () => {
-  try {
-    const registrations = JSON.parse(localStorage.getItem('trifusion_registrations') || '[]');
-    return registrations.filter(r => r.status === 'PAID' && r.payment?.utr);
-  } catch {
-    return [];
-  }
-};
+import services from '../../services/api';
 
 const AdminRegistrations = () => {
   const [loading, setLoading] = useState(true);
   const [registrations, setRegistrations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fetchData = () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const paidRegs = getPaidRegistrations();
-      setRegistrations(paidRegs);
+      const res = await services.admin.getRegistrations({ size: 1000 });
+      const regs = res.data?.data?.content || [];
+      
+      // Map API response
+      const mapped = regs.map(r => ({
+        ...r,
+        college: r.collegeName, // map for backward compatibility in the table
+        submittedAt: r.createdAt
+      }));
+      
+      // Filter only paid ones
+      const paidRegs = mapped.filter(r => r.status === 'PAID' && r.payment?.utrNumber);
+      
+      // Map payment utrNumber to utr for backward compatibility in table
+      const formattedRegs = paidRegs.map(r => ({
+        ...r,
+        payment: {
+          ...r.payment,
+          utr: r.payment.utrNumber
+        }
+      }));
+      
+      setRegistrations(formattedRegs);
     } catch (error) {
       console.error('Failed to load registrations:', error);
     } finally {
@@ -38,7 +51,7 @@ const AdminRegistrations = () => {
 
   const filteredData = registrations.filter(r => {
     const teamName = (r.teamName || '').toLowerCase();
-    const leaderName = (r.leader?.name || '').toLowerCase();
+    const leaderName = (r.leader?.fullName || '').toLowerCase();
     const leaderEmail = (r.leader?.email || '').toLowerCase();
     const college = (r.college || '').toLowerCase();
     const search = searchTerm.toLowerCase();
@@ -62,27 +75,37 @@ const AdminRegistrations = () => {
         'Track': reg.track || '',
         'College': reg.college || '',
         // Leader details
-        'Leader Name': reg.leader?.name || '',
+        'Leader Name': reg.leader?.fullName || '',
         'Leader Email': reg.leader?.email || '',
-        'Leader Mobile': reg.leader?.mobile || '',
+        'Leader Mobile': reg.leader?.phone || '',
         'Leader Gender': reg.leader?.gender || '',
         'Leader Department': reg.leader?.department || '',
-        'Leader Year': reg.leader?.year || '',
-        'Leader Roll No': reg.leader?.rollNo || '',
+        'Leader Year': reg.leader?.yearOfStudy || '',
+        'Leader Roll No': reg.leader?.rollNumber || '',
+        'Leader Accommodation': reg.leader?.needsAccommodation ? 'Yes' : 'No',
       };
 
       // Add each member's details (up to 3 members)
       (reg.members || []).forEach((m, mi) => {
         const num = mi + 1;
-        row[`Member ${num} Name`] = m.name || '';
+        row[`Member ${num} Name`] = m.fullName || '';
         row[`Member ${num} Email`] = m.email || '';
-        row[`Member ${num} Mobile`] = m.mobile || '';
+        row[`Member ${num} Mobile`] = m.phone || '';
         row[`Member ${num} Gender`] = m.gender || '';
-        row[`Member ${num} College`] = m.college || '';
+        row[`Member ${num} College`] = m.collegeName || '';
         row[`Member ${num} Department`] = m.department || '';
-        row[`Member ${num} Year`] = m.year || '';
-        row[`Member ${num} Roll No`] = m.rollNo || '';
+        row[`Member ${num} Year`] = m.yearOfStudy || '';
+        row[`Member ${num} Roll No`] = m.rollNumber || '';
+        row[`Member ${num} Accommodation`] = m.needsAccommodation ? 'Yes' : 'No';
       });
+
+      // Calculate Accommodation Stats
+      const accMembers = [reg.leader, ...(reg.members || [])].filter(m => m?.needsAccommodation);
+      const accBoys = accMembers.filter(m => m.gender === 'Male').length;
+      const accGirls = accMembers.filter(m => m.gender === 'Female').length;
+      row['Accommodation Boys'] = accBoys;
+      row['Accommodation Girls'] = accGirls;
+      row['Total Accommodation'] = accBoys + accGirls;
 
       // Payment details
       row['Payment Amount'] = reg.payment?.amount || '';
@@ -120,7 +143,7 @@ const AdminRegistrations = () => {
     link.href = reg.payment.screenshotData;
     const ext = reg.payment.screenshotType === 'application/pdf' ? '.pdf' : '.png';
     const teamName = (reg.teamName || 'team').replace(/[^a-zA-Z0-9]/g, '_');
-    const leaderName = (reg.leader?.name || '').replace(/[^a-zA-Z0-9]/g, '_');
+    const leaderName = (reg.leader?.fullName || '').replace(/[^a-zA-Z0-9]/g, '_');
     link.download = `${teamName}_${leaderName}_payment${ext}`;
     document.body.appendChild(link);
     link.click();
@@ -149,7 +172,7 @@ const AdminRegistrations = () => {
       label: 'Leader',
       render: (val) => (
         <div>
-          <span className="font-medium text-gray-800">{val?.name || 'N/A'}</span>
+          <span className="font-medium text-gray-800">{val?.fullName || 'N/A'}</span>
           <span className="block text-xs text-gray-500">{val?.email || ''}</span>
         </div>
       )

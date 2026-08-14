@@ -38,4 +38,6 @@ public class TeamMember {
     
     @NotBlank(message = "Gender is required")
     private String gender;
+    
+    private boolean needsAccommodation;
 }

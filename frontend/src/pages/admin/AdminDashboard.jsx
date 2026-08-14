@@ -4,34 +4,48 @@ import AdminLayout from '../../components/admin/AdminLayout';
 import StatsCard from '../../components/admin/StatsCard';
 import { useAuth } from '../../contexts/AuthContext';
 import * as XLSX from 'xlsx';
+import services from '../../services/api';
 
 const AdminDashboard = () => {
-  const { getAllParticipants } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [participants, setParticipants] = useState([]);
   const [expandedRow, setExpandedRow] = useState(null);
   const [viewingScreenshot, setViewingScreenshot] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const loadParticipants = useCallback(() => {
+  const loadParticipants = useCallback(async () => {
     try {
       setLoading(true);
-      const data = getAllParticipants();
-      // Also get registrations (payment is now embedded in registration)
-      const registrations = JSON.parse(localStorage.getItem('trifusion_registrations') || '[]');
+      // Fetch registrations from API with high size to get all
+      const res = await services.admin.getRegistrations({ size: 1000 });
+      const regs = res.data?.data?.content || [];
       
-      // Merge all data
-      const merged = data.map(p => {
-        const reg = registrations.find(r => r.userId === p.id || (r.leader?.email && r.leader.email === p.email));
-        return { ...p, registration: reg || null, payment: reg?.payment || null };
-      });
-      setParticipants(merged);
+      // Map API response to the format expected by the dashboard
+      const mapped = regs.map(r => ({
+        id: r.id,
+        fullName: r.leader?.name || 'Unknown',
+        email: r.leader?.email || '',
+        registeredAt: r.createdAt || new Date().toISOString(),
+        registration: {
+          teamName: r.teamName,
+          track: r.track,
+          college: r.collegeName,
+          leader: r.leader,
+          members: r.members,
+          status: r.status,
+          submittedAt: r.createdAt,
+          payment: r.payment
+        },
+        payment: r.payment
+      }));
+      setParticipants(mapped);
     } catch (error) {
       console.error('Failed to load participants:', error);
     } finally {
       setLoading(false);
     }
-  }, [getAllParticipants]);
+  }, []);
 
   useEffect(() => {
     loadParticipants();
@@ -65,26 +79,28 @@ const AdminDashboard = () => {
         'Team Name': reg?.teamName || 'N/A',
         'Track': reg?.track || 'N/A',
         'College': reg?.college || 'N/A',
-        'Leader Name': reg?.leader?.name || p.fullName || 'N/A',
+        'Leader Name': reg?.leader?.fullName || p.fullName || 'N/A',
         'Leader Email': reg?.leader?.email || p.email || 'N/A',
-        'Leader Mobile': reg?.leader?.mobile || 'N/A',
+        'Leader Mobile': reg?.leader?.phone || 'N/A',
         'Leader Department': reg?.leader?.department || 'N/A',
-        'Leader Year': reg?.leader?.year || 'N/A',
-        'Leader Roll No': reg?.leader?.rollNo || 'N/A',
+        'Leader Year': reg?.leader?.yearOfStudy || 'N/A',
+        'Leader Roll No': reg?.leader?.rollNumber || 'N/A',
         'Leader Gender': reg?.leader?.gender || 'N/A',
+        'Leader Accommodation': reg?.leader?.needsAccommodation ? 'Yes' : 'No',
       };
 
       // Add member columns
       for (let i = 0; i < 3; i++) {
         const m = reg?.members?.[i];
-        baseRow[`Member ${i+1} Name`] = m?.name || '';
+        baseRow[`Member ${i+1} Name`] = m?.fullName || '';
         baseRow[`Member ${i+1} Email`] = m?.email || '';
-        baseRow[`Member ${i+1} Mobile`] = m?.mobile || '';
-        baseRow[`Member ${i+1} College`] = m?.college || '';
+        baseRow[`Member ${i+1} Mobile`] = m?.phone || '';
+        baseRow[`Member ${i+1} College`] = m?.collegeName || '';
         baseRow[`Member ${i+1} Department`] = m?.department || '';
-        baseRow[`Member ${i+1} Year`] = m?.year || '';
-        baseRow[`Member ${i+1} Roll No`] = m?.rollNo || '';
+        baseRow[`Member ${i+1} Year`] = m?.yearOfStudy || '';
+        baseRow[`Member ${i+1} Roll No`] = m?.rollNumber || '';
         baseRow[`Member ${i+1} Gender`] = m?.gender || '';
+        baseRow[`Member ${i+1} Accommodation`] = m ? (m.needsAccommodation ? 'Yes' : 'No') : '';
       }
 
       // Payment info (payment is now embedded in registration)
@@ -95,6 +111,15 @@ const AdminDashboard = () => {
       baseRow['Paid At'] = reg?.payment?.paidAt ? new Date(reg.payment.paidAt).toLocaleString() : 'N/A';
       baseRow['Registration Date'] = reg?.submittedAt ? new Date(reg.submittedAt).toLocaleString() : 'N/A';
       baseRow['Google Sign-In Date'] = p.registeredAt ? new Date(p.registeredAt).toLocaleString() : 'N/A';
+
+      // Calculate Accommodation stats
+      const accMembers = [reg?.leader, ...(reg?.members || [])].filter(m => m?.needsAccommodation);
+      const accBoys = accMembers.filter(m => m.gender === 'Male').length;
+      const accGirls = accMembers.filter(m => m.gender === 'Female').length;
+      
+      baseRow['Accommodation Boys'] = accBoys;
+      baseRow['Accommodation Girls'] = accGirls;
+      baseRow['Total Accommodation'] = accBoys + accGirls;
 
       excelData.push(baseRow);
     });
@@ -247,13 +272,14 @@ const AdminDashboard = () => {
                           <div>
                             <h4 className="text-sm font-semibold text-gray-900 mb-3 uppercase tracking-wider">Team Leader</h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg border border-gray-200">
-                              <div><span className="text-xs text-gray-500 block">Name</span><span className="text-sm font-medium text-gray-900">{reg.leader?.name}</span></div>
+                              <div><span className="text-xs text-gray-500 block">Name</span><span className="text-sm font-medium text-gray-900">{reg.leader?.fullName}</span></div>
                               <div><span className="text-xs text-gray-500 block">Email</span><span className="text-sm font-medium text-gray-900 break-all">{reg.leader?.email}</span></div>
-                              <div><span className="text-xs text-gray-500 block">Mobile</span><span className="text-sm font-medium text-gray-900">{reg.leader?.mobile}</span></div>
+                              <div><span className="text-xs text-gray-500 block">Mobile</span><span className="text-sm font-medium text-gray-900">{reg.leader?.phone}</span></div>
                               <div><span className="text-xs text-gray-500 block">Gender</span><span className="text-sm font-medium text-gray-900">{reg.leader?.gender}</span></div>
                               <div><span className="text-xs text-gray-500 block">Department</span><span className="text-sm font-medium text-gray-900">{reg.leader?.department}</span></div>
-                              <div><span className="text-xs text-gray-500 block">Year</span><span className="text-sm font-medium text-gray-900">{reg.leader?.year}</span></div>
-                              <div><span className="text-xs text-gray-500 block">Roll No</span><span className="text-sm font-medium text-gray-900">{reg.leader?.rollNo}</span></div>
+                              <div><span className="text-xs text-gray-500 block">Year</span><span className="text-sm font-medium text-gray-900">{reg.leader?.yearOfStudy}</span></div>
+                              <div><span className="text-xs text-gray-500 block">Roll No</span><span className="text-sm font-medium text-gray-900">{reg.leader?.rollNumber}</span></div>
+                              <div><span className="text-xs text-gray-500 block">Accommodation</span><span className="text-sm font-medium text-gray-900">{reg.leader?.needsAccommodation ? 'Yes' : 'No'}</span></div>
                             </div>
                           </div>
 
@@ -263,14 +289,15 @@ const AdminDashboard = () => {
                             <div className="space-y-3">
                               {reg.members?.map((m, i) => (
                                 <div key={i} className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-white p-4 rounded-lg border border-gray-200">
-                                  <div><span className="text-xs text-gray-500 block">Member {i+1} Name</span><span className="text-sm font-medium text-gray-900">{m.name}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Member {i+1} Name</span><span className="text-sm font-medium text-gray-900">{m.fullName}</span></div>
                                   <div><span className="text-xs text-gray-500 block">Email</span><span className="text-sm font-medium text-gray-900 break-all">{m.email}</span></div>
-                                  <div><span className="text-xs text-gray-500 block">Mobile</span><span className="text-sm font-medium text-gray-900">{m.mobile}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Mobile</span><span className="text-sm font-medium text-gray-900">{m.phone}</span></div>
                                   <div><span className="text-xs text-gray-500 block">Gender</span><span className="text-sm font-medium text-gray-900">{m.gender}</span></div>
-                                  <div><span className="text-xs text-gray-500 block">College</span><span className="text-sm font-medium text-gray-900">{m.college}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">College</span><span className="text-sm font-medium text-gray-900">{m.collegeName}</span></div>
                                   <div><span className="text-xs text-gray-500 block">Department</span><span className="text-sm font-medium text-gray-900">{m.department}</span></div>
-                                  <div><span className="text-xs text-gray-500 block">Year</span><span className="text-sm font-medium text-gray-900">{m.year}</span></div>
-                                  <div><span className="text-xs text-gray-500 block">Roll No</span><span className="text-sm font-medium text-gray-900">{m.rollNo}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Year</span><span className="text-sm font-medium text-gray-900">{m.yearOfStudy}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Roll No</span><span className="text-sm font-medium text-gray-900">{m.rollNumber}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Accommodation</span><span className="text-sm font-medium text-gray-900">{m.needsAccommodation ? 'Yes' : 'No'}</span></div>
                                 </div>
                               ))}
                             </div>

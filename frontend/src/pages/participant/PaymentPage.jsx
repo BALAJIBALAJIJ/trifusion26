@@ -22,10 +22,27 @@ const PaymentPage = () => {
   });
   
   const [preview, setPreview] = useState(null);
+  const [calculatedAmount, setCalculatedAmount] = useState(1600);
 
   useEffect(() => {
-    const fetchPayment = async () => {
+    const fetchData = async () => {
       try {
+        if(api?.registrations?.getMine) {
+          try {
+            const regRes = await api.registrations.getMine();
+            if (regRes.data) {
+              let amount = 1600;
+              if (regRes.data.leader?.needsAccommodation) amount += 250;
+              (regRes.data.members || []).forEach(m => {
+                if (m.needsAccommodation) amount += 250;
+              });
+              setCalculatedAmount(amount);
+            }
+          } catch (e) {
+            console.error('Could not fetch registration', e);
+          }
+        }
+        
         if(api?.payments?.getMine) {
           const res = await api.payments.getMine();
           if (res.data) setExistingPayment(res.data);
@@ -34,7 +51,7 @@ const PaymentPage = () => {
         // Normal if not paid yet
       }
     };
-    fetchPayment();
+    fetchData();
   }, []);
 
   const handleCopyUPI = () => {
@@ -66,7 +83,8 @@ const PaymentPage = () => {
     try {
       setLoading(true);
       const data = new FormData();
-      data.append('utr', formData.utr);
+      data.append('utrNumber', formData.utr); // Match backend DTO
+      data.append('amount', calculatedAmount);
       data.append('screenshot', formData.screenshot);
 
       if(api?.payments?.submit) {
@@ -100,7 +118,7 @@ const PaymentPage = () => {
           <div className="bg-gray-900 rounded-lg p-4 text-left space-y-2 mb-6 text-sm">
             <div className="flex justify-between border-b border-gray-800 pb-2">
               <span className="text-gray-500">Amount Paid</span>
-              <span className="text-white font-medium">₹{existingPayment.amount || paymentAmount}</span>
+              <span className="text-white font-medium">₹{existingPayment.amount || calculatedAmount}</span>
             </div>
             <div className="flex justify-between border-b border-gray-800 pb-2 pt-1">
               <span className="text-gray-500">UTR / Ref No</span>
@@ -159,7 +177,7 @@ const PaymentPage = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center bg-gray-900 p-3 rounded-lg border border-gray-800">
                 <span className="text-gray-500 text-sm">Amount to Pay</span>
-                <span className="text-xl font-bold text-cyan-400">₹{paymentAmount}</span>
+                <span className="text-xl font-bold text-cyan-400">₹{calculatedAmount}</span>
               </div>
               
               <div className="bg-gray-900 p-4 rounded-lg border border-gray-800">

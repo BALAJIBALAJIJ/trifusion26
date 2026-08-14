@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
-        const res = await api.get('/auth/me', { timeout: 1500 });
+        const res = await api.get('/auth/me', { timeout: 60000 });
         const userData = res.data?.data;
         if (userData) {
           const u = {
@@ -102,108 +102,67 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      await api.get('/health', { timeout: 1500 });
+      await api.get('/health', { timeout: 60000 });
       setBackendAvailable(true);
     } catch (err) {
       setBackendAvailable(err.response ? true : false);
     }
   };
 
-  // Admin login - tries API first, falls back to local
+  // Admin login - strict API call
   const adminLogin = async (email, password) => {
-    // Try backend API first
-    if (backendAvailable !== false) {
-      try {
-        const res = await api.post('/auth/admin-login', { email, password });
-        const data = res.data?.data;
-        if (data?.token) {
-          localStorage.setItem('token', data.token);
-          const userData = {
-            id: data.id,
-            email: data.email,
-            fullName: data.fullName,
-            profilePicture: data.profilePicture,
-            role: data.role,
-          };
-          setUser(userData);
-          localStorage.setItem('trifusion_user', JSON.stringify(userData));
-          setBackendAvailable(true);
-          return userData;
-        }
-      } catch (err) {
-        if (err.response) {
-          // Backend responded with error (wrong credentials)
-          throw err;
-        }
-        // Network error - backend not available, fall through to local
-        console.log('Backend not available, using local auth');
-        setBackendAvailable(false);
+    try {
+      const res = await api.post('/auth/admin-login', { email, password });
+      const data = res.data?.data;
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+        const userData = {
+          id: data.id,
+          email: data.email,
+          fullName: data.fullName,
+          profilePicture: data.profilePicture,
+          role: data.role,
+        };
+        setUser(userData);
+        localStorage.setItem('trifusion_user', JSON.stringify(userData));
+        setBackendAvailable(true);
+        return userData;
       }
-    }
-
-    // Fallback: local admin login
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const userData = {
-        id: 'admin-1',
-        email: ADMIN_EMAIL,
-        fullName: 'TRIFUSION Admin',
-        role: 'ADMIN',
-        profilePicture: null
-      };
-      setUser(userData);
-      localStorage.setItem('trifusion_user', JSON.stringify(userData));
-      return userData;
-    } else {
-      throw { response: { data: { message: 'Invalid admin credentials. Access denied.' } } };
+    } catch (err) {
+      if (err.response) {
+        throw err;
+      }
+      throw new Error('Backend server is starting up or unavailable. Please try again in a minute.');
     }
   };
 
-  // Google Sign-In - tries API first, falls back to local
+  // Google Sign-In - strict API call
   const googleLogin = async (credentialResponse) => {
-    // Try backend API first
-    if (backendAvailable !== false) {
-      try {
-        const res = await api.post('/auth/google', {
-          credential: credentialResponse.credential,
-        });
-        const data = res.data?.data;
-        if (data?.token) {
-          localStorage.setItem('token', data.token);
-          const userData = {
-            id: data.id,
-            email: data.email,
-            fullName: data.fullName,
-            profilePicture: data.profilePicture,
-            role: data.role,
-          };
-          setUser(userData);
-          localStorage.setItem('trifusion_user', JSON.stringify(userData));
-          setBackendAvailable(true);
-          return userData;
-        }
-      } catch (err) {
-        if (err.response) {
-          throw err;
-        }
-        console.log('Backend not available, using local auth');
-        setBackendAvailable(false);
+    try {
+      const res = await api.post('/auth/google', {
+        credential: credentialResponse.credential,
+      });
+      const data = res.data?.data;
+      if (data?.token) {
+        localStorage.setItem('token', data.token);
+        const userData = {
+          id: data.id,
+          email: data.email,
+          fullName: data.fullName,
+          profilePicture: data.profilePicture,
+          role: data.role,
+        };
+        setUser(userData);
+        localStorage.setItem('trifusion_user', JSON.stringify(userData));
+        setBackendAvailable(true);
+        return userData;
       }
+    } catch (err) {
+      if (err.response) {
+        throw err;
+      }
+      throw new Error('Backend server is starting up or unavailable. Please wait a minute and try again.');
     }
-
-    // Fallback: local Google login
-    const decoded = decodeGoogleJwt(credentialResponse.credential);
-    const userData = {
-      id: `google-${decoded.sub}`,
-      email: decoded.email,
-      fullName: decoded.name,
-      profilePicture: decoded.picture,
-      role: 'PARTICIPANT',
-      googleId: decoded.sub
-    };
-    storeParticipant(userData);
-    setUser(userData);
-    localStorage.setItem('trifusion_user', JSON.stringify(userData));
-    return userData;
   };
 
   // Legacy login (kept for compatibility)

@@ -5,7 +5,7 @@ import BackButton from '../../components/ui/BackButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { toast } from '../../components/ui/Toast';
 
-const STEPS = ['Team Details', 'Team Leader', 'Team Members', 'Declaration', 'Review', 'Payment'];
+const STEPS = ['Team Details', 'Team Leader', 'Team Members', 'Declaration', 'Review', 'Accommodation', 'Payment'];
 
 const InputField = ({ label, value, onChange, type = "text", required = true, placeholder = "", disabled = false }) => (
   <div className="mb-4">
@@ -27,39 +27,11 @@ const SelectField = ({ label, value, onChange, options, required = true }) => (
 );
 
 // LocalStorage helpers for registrations
-const getStoredRegistrations = () => {
-  try {
-    return JSON.parse(localStorage.getItem('trifusion_registrations') || '[]');
-  } catch { return []; }
-};
-
-const saveRegistration = (userId, data) => {
-  const registrations = getStoredRegistrations();
-  const existingIndex = registrations.findIndex(r => r.userId === userId);
-  const registration = {
-    ...data,
-    userId,
-    id: existingIndex >= 0 ? registrations[existingIndex].id : `reg-${Date.now()}`,
-    status: 'PAID',
-    submittedAt: existingIndex >= 0 ? registrations[existingIndex].submittedAt : new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  if (existingIndex >= 0) {
-    registrations[existingIndex] = registration;
-  } else {
-    registrations.push(registration);
-  }
-  localStorage.setItem('trifusion_registrations', JSON.stringify(registrations));
-  return registration;
-};
-
-const getMyRegistration = (userId) => {
-  const registrations = getStoredRegistrations();
-  return registrations.find(r => r.userId === userId) || null;
-};
+import services from '../../services/api';
 
 // Payment config
-const PAYMENT_AMOUNT = '1600';
+const BASE_PAYMENT = 1600;
+const ACCOMMODATION_FEE = 250;
 const UPI_ID = 'jbalajinadar8@okaxis';
 const ACCOUNT_NAME = 'BALAJI NADAR';
 const QR_URL = '/assets/payment-qr.png';
@@ -83,19 +55,21 @@ const RegistrationForm = () => {
       department: '',
       year: '',
       rollNo: '',
-      gender: ''
+      gender: '',
+      needsAccommodation: false
     },
     members: [
-      { name: '', email: '', mobile: '', college: '', department: '', year: '', rollNo: '', gender: '' }
+      { name: '', email: '', mobile: '', college: '', department: '', year: '', rollNo: '', gender: '', needsAccommodation: false }
     ],
     declaration: false,
     rulesAgreed: false,
+    accommodationNeeded: null,
     payment: {
       utr: '',
       screenshotData: null,
       screenshotName: '',
       screenshotType: '',
-      amount: PAYMENT_AMOUNT,
+      screenshotFile: null,
       paidAt: ''
     }
   });
@@ -104,24 +78,46 @@ const RegistrationForm = () => {
 
   useEffect(() => {
     if (user?.id) {
-      const existing = getMyRegistration(user.id);
-      if (existing) {
-        setFormData(prev => ({
-          ...prev,
-          teamName: existing.teamName || '',
-          track: existing.track || 'On Spot Problem Statement',
-          college: existing.college || '',
-          leader: existing.leader || prev.leader,
-          members: existing.members || prev.members,
-          declaration: true,
-          rulesAgreed: true,
-          payment: existing.payment || prev.payment
-        }));
-        setIsEditing(true);
-        if (existing.payment?.screenshotData) {
-          setScreenshotPreview(existing.payment.screenshotData);
+      // Fetch existing registration from API if needed
+      const fetchRegistration = async () => {
+        try {
+          const res = await services.registrations.getMine();
+          const existing = res.data?.data;
+          if (existing) {
+            setFormData(prev => ({
+              ...prev,
+              teamName: existing.teamName || '',
+              track: existing.track || '',
+              college: existing.collegeName || '',
+              leader: existing.leader || prev.leader,
+              members: existing.members || prev.members,
+              declaration: existing.declarationAccepted || true,
+              rulesAgreed: existing.termsAccepted || true,
+            }));
+            setIsEditing(true);
+            
+            // Fetch payment status
+            const payRes = await services.payments.getMine();
+            const payData = payRes.data?.data;
+            if (payData) {
+              setFormData(prev => ({
+                ...prev,
+                payment: {
+                  ...prev.payment,
+                  utr: payData.utrNumber || '',
+                  amount: payData.amount || PAYMENT_AMOUNT,
+                }
+              }));
+              if (payData.screenshotUrl) {
+                setScreenshotPreview(payData.screenshotUrl);
+              }
+            }
+          }
+        } catch (err) {
+          console.log("No existing registration found or error fetching");
         }
-      }
+      };
+      fetchRegistration();
     }
   }, [user]);
 
@@ -139,9 +135,26 @@ const RegistrationForm = () => {
     }
   };
 
+  const getPaymentAmount = () => {
+    if (!formData) return BASE_PAYMENT;
+    let amount = BASE_PAYMENT;
+    if (formData.accommodationNeeded) {
+      let count = 0;
+      if (formData.leader.needsAccommodation) count++;
+      formData.members.forEach(m => {
+        if (m.needsAccommodation) count++;
+      });
+      amount += (count * ACCOMMODATION_FEE);
+    }
+    return amount;
+  };
+
   const addMember = () => {
     if (formData.members.length < 3) {
-      setFormData({ ...formData, members: [...formData.members, { name: '', email: '', mobile: '', college: formData.college || '', department: '', year: '', rollNo: '', gender: '' }] });
+      setFormData({
+        ...formData,
+        members: [...formData.members, { name: '', email: '', mobile: '', college: formData.college || '', department: '', year: '', rollNo: '', gender: '', needsAccommodation: false }]
+      });
     }
   };
 
@@ -180,7 +193,8 @@ const RegistrationForm = () => {
             ...prev.payment,
             screenshotData: base64Data,
             screenshotName: file.name,
-            screenshotType: file.type
+            screenshotType: file.type,
+            screenshotFile: file
           }
         }));
         setScreenshotPreview(base64Data);
@@ -191,8 +205,8 @@ const RegistrationForm = () => {
 
   const validateStep = () => {
     if (currentStep === 0) {
-      if (!formData.teamName.trim() || !formData.college.trim()) {
-        toast.error('Please fill all required fields in this step');
+      if (!formData.teamName.trim() || !formData.college.trim() || !formData.track.trim()) {
+        toast.error('Please fill all required fields (including Theme) in this step');
         return false;
       }
     } else if (currentStep === 1) {
@@ -230,7 +244,22 @@ const RegistrationForm = () => {
         toast.error('You must agree to the terms and rules to proceed');
         return false;
       }
+    } else if (currentStep === 4) {
+      // Review step doesn't need validation to pass
     } else if (currentStep === 5) {
+      // Accommodation validation
+      if (formData.accommodationNeeded === null) {
+        toast.error('Please select whether you need accommodation');
+        return false;
+      }
+      if (formData.accommodationNeeded) {
+        const anySelected = formData.leader.needsAccommodation || formData.members.some(m => m.needsAccommodation);
+        if (!anySelected) {
+          toast.error('Please select at least one member for accommodation, or select No');
+          return false;
+        }
+      }
+    } else if (currentStep === 6) {
       // Payment validation
       if (!formData.payment.utr.trim()) {
         toast.error('Please enter the UTR / Reference number');
@@ -260,19 +289,56 @@ const RegistrationForm = () => {
     if (!validateStep()) return;
     try {
       setLoading(true);
-      const finalData = {
-        ...formData,
-        payment: {
-          ...formData.payment,
-          paidAt: new Date().toISOString(),
-          amount: PAYMENT_AMOUNT
-        }
+      
+      // 1. Submit Registration
+      const regPayload = {
+        teamName: formData.teamName,
+        track: formData.track,
+        collegeName: formData.college,
+        leader: {
+          fullName: formData.leader.name,
+          email: formData.leader.email,
+          phone: formData.leader.mobile,
+          collegeName: formData.college,
+          department: formData.leader.department,
+          yearOfStudy: formData.leader.year,
+          rollNumber: formData.leader.rollNo,
+          gender: formData.leader.gender,
+          needsAccommodation: formData.accommodationNeeded ? formData.leader.needsAccommodation : false
+        },
+        members: formData.members.map(m => ({
+          fullName: m.name,
+          email: m.email,
+          phone: m.mobile,
+          collegeName: m.college || formData.college,
+          department: m.department,
+          yearOfStudy: m.year,
+          rollNumber: m.rollNo,
+          gender: m.gender,
+          needsAccommodation: formData.accommodationNeeded ? m.needsAccommodation : false
+        })),
+        declarationAccepted: formData.declaration,
+        termsAccepted: formData.rulesAgreed
       };
-      saveRegistration(user.id, finalData);
+      await services.registrations.create(regPayload);
+
+      // 2. Submit Payment
+      if (formData.payment.screenshotFile) {
+        const paymentFormData = new FormData();
+        paymentFormData.append('utrNumber', formData.payment.utr);
+        paymentFormData.append('amount', getPaymentAmount());
+        paymentFormData.append('screenshot', formData.payment.screenshotFile);
+        
+        await services.payments.submit(paymentFormData);
+      } else if (!isEditing) {
+        throw new Error('Screenshot is required for new registrations');
+      }
+
       toast.success('Registration & Payment submitted successfully! 🎉');
       navigate('/participant/dashboard');
-    } catch {
-      toast.error('Failed to submit. Please try again.');
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to submit. Please try again.';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -320,15 +386,27 @@ const RegistrationForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
                 <InputField label="Team Name" value={formData.teamName} onChange={e => handleChange('root', 'teamName', e.target.value)} placeholder="Enter your team name" />
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Problem Statement</label>
-                  <div className="w-full bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-500/30 rounded-lg px-4 py-2.5 text-white font-medium flex items-center gap-2 relative overflow-hidden">
-                    <span className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-purple-500/5 animate-pulse" />
-                    <span className="relative z-10 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" style={{ animationDuration: '2s' }} />
-                      <span className="w-2 h-2 rounded-full bg-cyan-400 absolute" />
-                      <span className="ml-3">On Spot Problem Statement</span>
-                    </span>
-                  </div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Theme (Problem Statement) <span className="text-red-500">*</span></label>
+                  <select
+                    value={formData.track}
+                    onChange={e => handleChange('root', 'track', e.target.value)}
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-cyan-500 focus:border-cyan-500 transition-colors"
+                    required
+                  >
+                    <option value="" disabled>Select your theme...</option>
+                    <optgroup label="ECE">
+                      <option value="ECE: Intelligent Communication & Embedded Systems">📡 Intelligent Communication & Embedded Systems</option>
+                      <option value="ECE: IoT, Automation & Edge Intelligence">🌐 IoT, Automation & Edge Intelligence</option>
+                    </optgroup>
+                    <optgroup label="EEE">
+                      <option value="EEE: Smart Energy & Power Systems">⚡ Smart Energy & Power Systems</option>
+                      <option value="EEE: Electric Mobility & Intelligent Power Management">🚗 Electric Mobility & Intelligent Power Management</option>
+                    </optgroup>
+                    <optgroup label="BME">
+                      <option value="BME: Digital Healthcare & Biomedical Innovation">🫀 Digital Healthcare & Biomedical Innovation</option>
+                      <option value="BME: Assistive Technology & Patient Safety">🦾 Assistive Technology & Patient Safety</option>
+                    </optgroup>
+                  </select>
                 </div>
                 <div className="md:col-span-2">
                   <InputField label="College/Institution Name" value={formData.college} onChange={e => handleChange('root', 'college', e.target.value)} placeholder="Enter your college name" />
@@ -477,8 +555,97 @@ const RegistrationForm = () => {
             </div>
           )}
 
-          {/* STEP 6: Payment */}
+          {/* STEP 6: Accommodation Details */}
           {currentStep === 5 && (
+            <div>
+              <h2 className="text-xl font-heading text-white mb-6 border-b border-gray-800 pb-2">Accommodation Details</h2>
+              <div className="space-y-6">
+                <div className="bg-gray-900 p-6 rounded-lg border border-gray-800">
+                  <p className="text-gray-300 font-medium mb-4">Do you need accommodation for the event? (₹250 per person)</p>
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, accommodationNeeded: true })}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium border transition-colors ${
+                        formData.accommodationNeeded === true 
+                        ? 'bg-cyan-600/20 border-cyan-500 text-cyan-400' 
+                        : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600'
+                      }`}
+                    >
+                      Yes, we need accommodation
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setFormData({ 
+                          ...formData, 
+                          accommodationNeeded: false,
+                          leader: { ...formData.leader, needsAccommodation: false },
+                          members: formData.members.map(m => ({ ...m, needsAccommodation: false }))
+                        });
+                      }}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium border transition-colors ${
+                        formData.accommodationNeeded === false 
+                        ? 'bg-cyan-600/20 border-cyan-500 text-cyan-400' 
+                        : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-600'
+                      }`}
+                    >
+                      No, we don't need it
+                    </button>
+                  </div>
+                </div>
+
+                {formData.accommodationNeeded && (
+                  <div className="bg-gray-900/50 p-6 rounded-lg border border-gray-800">
+                    <h3 className="text-white font-medium mb-4">Select members who need accommodation:</h3>
+                    <div className="space-y-3">
+                      <label className="flex items-center p-3 rounded-lg border border-gray-800 hover:bg-gray-800/50 cursor-pointer transition-colors">
+                        <input 
+                          type="checkbox" 
+                          checked={formData.leader.needsAccommodation} 
+                          onChange={(e) => handleChange('leader', 'needsAccommodation', e.target.checked)}
+                          className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-gray-900"
+                        />
+                        <span className="ml-3 text-gray-200">{formData.leader.name} <span className="text-gray-500 text-sm">(Team Leader - {formData.leader.gender || 'Unknown'})</span></span>
+                      </label>
+                      {formData.members.map((member, idx) => (
+                        <label key={idx} className="flex items-center p-3 rounded-lg border border-gray-800 hover:bg-gray-800/50 cursor-pointer transition-colors">
+                          <input 
+                            type="checkbox" 
+                            checked={member.needsAccommodation} 
+                            onChange={(e) => handleChange('members', 'needsAccommodation', e.target.checked, idx)}
+                            className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-gray-900"
+                          />
+                          <span className="ml-3 text-gray-200">{member.name || `Member ${idx + 1}`} <span className="text-gray-500 text-sm">({member.gender || 'Unknown'})</span></span>
+                        </label>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-gray-800">
+                      <h4 className="text-gray-400 text-sm mb-2">Accommodation Summary:</h4>
+                      <div className="flex gap-4">
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded px-4 py-2 text-blue-400">
+                          Boys: {
+                            (formData.leader.needsAccommodation && formData.leader.gender === 'Male' ? 1 : 0) +
+                            formData.members.filter(m => m.needsAccommodation && m.gender === 'Male').length
+                          }
+                        </div>
+                        <div className="bg-pink-500/10 border border-pink-500/20 rounded px-4 py-2 text-pink-400">
+                          Girls: {
+                            (formData.leader.needsAccommodation && formData.leader.gender === 'Female' ? 1 : 0) +
+                            formData.members.filter(m => m.needsAccommodation && m.gender === 'Female').length
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 7: Payment */}
+          {currentStep === 6 && (
             <div>
               <h2 className="text-xl font-heading text-white mb-6 border-b border-gray-800 pb-2 flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-cyan-400" /> Registration Fee Payment
@@ -495,7 +662,7 @@ const RegistrationForm = () => {
 
                   <div className="flex justify-between items-center bg-gray-900 p-3 rounded-lg border border-gray-800">
                     <span className="text-gray-500 text-sm">Amount to Pay</span>
-                    <span className="text-xl font-bold text-cyan-400">₹{PAYMENT_AMOUNT}</span>
+                    <span className="text-xl font-bold text-cyan-400">₹{getPaymentAmount()}</span>
                   </div>
 
                   <div className="bg-gray-900 p-4 rounded-lg border border-gray-800">

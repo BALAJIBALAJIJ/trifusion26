@@ -4,13 +4,7 @@ import { Users, ChevronRight, AlertCircle } from 'lucide-react';
 import BackButton from '../../components/ui/BackButton';
 import { useAuth } from '../../contexts/AuthContext';
 
-// LocalStorage helpers
-const getMyRegistration = (userId) => {
-  try {
-    const registrations = JSON.parse(localStorage.getItem('trifusion_registrations') || '[]');
-    return registrations.find(r => r.userId === userId) || null;
-  } catch { return null; }
-};
+import services from '../../services/api';
 
 
 
@@ -20,8 +14,17 @@ const ParticipantDashboard = () => {
   const [registration, setRegistration] = useState(null);
   useEffect(() => {
     if (user?.id) {
-      const reg = getMyRegistration(user.id);
-      setRegistration(reg);
+      const fetchRegistration = async () => {
+        try {
+          const res = await services.registrations.getMine();
+          if (res.data?.data) {
+            setRegistration(res.data.data);
+          }
+        } catch (err) {
+          console.log("No registration found");
+        }
+      };
+      fetchRegistration();
     }
   }, [user]);
 
@@ -101,7 +104,7 @@ const ParticipantDashboard = () => {
                   </div>
                   <div className="flex justify-between border-b border-gray-800 pb-3">
                     <span className="text-gray-400">College</span>
-                    <span className="font-medium text-white text-right max-w-[200px]">{registration.college}</span>
+                    <span className="font-medium text-white text-right max-w-[200px]">{registration.collegeName}</span>
                   </div>
                   <div className="flex justify-between border-b border-gray-800 pb-3">
                     <span className="text-gray-400">Members</span>

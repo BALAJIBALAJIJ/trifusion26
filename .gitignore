@@ -49,3 +49,5 @@ backend/.mvn/wrapper/maven-wrapper.jar
 # Misc
 *.bak
 *.tmp
+
+.vercel
