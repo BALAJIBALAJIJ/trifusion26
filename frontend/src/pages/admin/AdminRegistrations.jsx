@@ -18,26 +18,26 @@ const AdminRegistrations = () => {
       const res = await services.admin.getRegistrations({ size: 1000 });
       const regs = res.data?.data?.content || [];
       
-      // Map API response
-      const mapped = regs.map(r => ({
-        ...r,
-        college: r.collegeName, // map for backward compatibility in the table
-        submittedAt: r.createdAt
-      }));
-      
-      // Filter only paid ones
-      const paidRegs = mapped.filter(r => r.status === 'PAID' && r.payment?.utrNumber);
-      
-      // Map payment utrNumber to utr for backward compatibility in table
-      const formattedRegs = paidRegs.map(r => ({
-        ...r,
-        payment: {
-          ...r.payment,
-          utr: r.payment.utrNumber
+      // For each registration, fetch its details (which includes payment)
+      const mappedPromises = regs.map(async (r) => {
+        let payment = null;
+        try {
+          const detailRes = await services.admin.getRegistration(r.id);
+          payment = detailRes.data?.data?.payment || null;
+        } catch (e) {
+          // Payment may not exist
         }
-      }));
+        
+        return {
+          ...r,
+          college: r.collegeName,
+          submittedAt: r.createdAt,
+          payment: payment
+        };
+      });
       
-      setRegistrations(formattedRegs);
+      const mapped = await Promise.all(mappedPromises);
+      setRegistrations(mapped);
     } catch (error) {
       console.error('Failed to load registrations:', error);
     } finally {
@@ -108,20 +108,20 @@ const AdminRegistrations = () => {
       row['Total Accommodation'] = accBoys + accGirls;
 
       // Payment details
+      row['Payment Status'] = reg.payment?.status || 'NO PAYMENT';
       row['Payment Amount'] = reg.payment?.amount || '';
-      row['UTR / Ref No'] = reg.payment?.utr || '';
-      row['Payment File Name'] = reg.payment?.screenshotName || '';
-      row['Payment File Type'] = reg.payment?.screenshotType || '';
-      row['Paid At'] = reg.payment?.paidAt ? new Date(reg.payment.paidAt).toLocaleString('en-IN') : '';
-      row['Submitted At'] = reg.submittedAt ? new Date(reg.submittedAt).toLocaleString('en-IN') : '';
-      row['Status'] = reg.status || '';
+      row['UTR / Ref No'] = reg.payment?.utrNumber || '';
+      row['Payment Screenshot URL'] = reg.payment?.screenshotUrl || '';
+      row['Payment Submitted At'] = reg.payment?.submittedAt ? new Date(reg.payment.submittedAt).toLocaleString('en-IN') : '';
+      row['Registration Submitted At'] = reg.submittedAt ? new Date(reg.submittedAt).toLocaleString('en-IN') : '';
+      row['Registration Status'] = reg.status || '';
 
       excelData.push(row);
     });
 
     const ws = XLSX.utils.json_to_sheet(excelData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Paid Registrations');
+    XLSX.utils.book_append_sheet(wb, ws, 'Registrations');
 
     // Auto-size columns
     const colWidths = Object.keys(excelData[0] || {}).map(key => ({
@@ -129,30 +129,23 @@ const AdminRegistrations = () => {
     }));
     ws['!cols'] = colWidths;
 
-    XLSX.writeFile(wb, `TRIFUSION26_PaidRegistrations_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.writeFile(wb, `TRIFUSION26_Registrations_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   // Download a single payment screenshot
   const downloadScreenshot = (reg) => {
-    if (!reg.payment?.screenshotData) {
+    if (!reg.payment?.screenshotUrl) {
       alert('No payment screenshot available for this registration.');
       return;
     }
 
-    const link = document.createElement('a');
-    link.href = reg.payment.screenshotData;
-    const ext = reg.payment.screenshotType === 'application/pdf' ? '.pdf' : '.png';
-    const teamName = (reg.teamName || 'team').replace(/[^a-zA-Z0-9]/g, '_');
-    const leaderName = (reg.leader?.fullName || '').replace(/[^a-zA-Z0-9]/g, '_');
-    link.download = `${teamName}_${leaderName}_payment${ext}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // Open screenshot URL in new tab
+    window.open(reg.payment.screenshotUrl, '_blank');
   };
 
   // Download ALL payment screenshots as individual files
   const downloadAllScreenshots = () => {
-    const regsWithScreenshots = filteredData.filter(r => r.payment?.screenshotData);
+    const regsWithScreenshots = filteredData.filter(r => r.payment?.screenshotUrl);
     if (regsWithScreenshots.length === 0) {
       alert('No payment screenshots to download.');
       return;
@@ -160,8 +153,8 @@ const AdminRegistrations = () => {
 
     regsWithScreenshots.forEach((reg, index) => {
       setTimeout(() => {
-        downloadScreenshot(reg);
-      }, index * 500); // stagger downloads to avoid browser blocking
+        window.open(reg.payment.screenshotUrl, '_blank');
+      }, index * 500);
     });
   };
 
@@ -189,7 +182,7 @@ const AdminRegistrations = () => {
       render: (val) => (
         <div className="text-sm">
           <span className="text-emerald-600 font-medium">₹{val?.amount || '1600'}</span>
-          <span className="block text-xs text-gray-500">UTR: {val?.utr || 'N/A'}</span>
+          <span className="block text-xs text-gray-500">UTR: {val?.utrNumber || 'N/A'}</span>
         </div>
       )
     },
@@ -202,13 +195,13 @@ const AdminRegistrations = () => {
       key: 'payment',
       label: 'Screenshot',
       render: (val, row) => (
-        val?.screenshotData ? (
+        val?.screenshotUrl ? (
           <button
             onClick={() => downloadScreenshot(row)}
             className="flex items-center gap-1 text-xs text-cyan-600 hover:text-cyan-500 bg-cyan-50 px-2 py-1 rounded-md transition-colors cursor-pointer"
           >
-            {val.screenshotType === 'application/pdf' ? <FileText className="w-3 h-3" /> : <Image className="w-3 h-3" />}
-            Download
+            <Image className="w-3 h-3" />
+            View
           </button>
         ) : (
           <span className="text-xs text-gray-400">None</span>
@@ -223,7 +216,7 @@ const AdminRegistrations = () => {
   ];
 
   return (
-    <AdminLayout title="Paid Registrations">
+    <AdminLayout title="All Registrations">
       <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         
         <div className="flex-1 max-w-md relative">
@@ -271,18 +264,18 @@ const AdminRegistrations = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
           <Users className="w-12 h-12 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-600 mb-2">
-            {registrations.length === 0 ? 'No paid registrations yet' : 'No matching results'}
+            {registrations.length === 0 ? 'No registrations yet' : 'No matching results'}
           </h3>
           <p className="text-sm text-gray-400">
             {registrations.length === 0 
-              ? 'Only teams that complete payment will appear here.' 
+              ? 'Teams will appear here once they register.' 
               : 'Try adjusting your search criteria.'}
           </p>
         </div>
       ) : (
         <>
           <div className="mb-3 text-sm text-gray-500">
-            Showing {filteredData.length} of {registrations.length} paid registrations
+            Showing {filteredData.length} of {registrations.length} registrations
           </div>
           <DataTable 
             columns={columns} 
