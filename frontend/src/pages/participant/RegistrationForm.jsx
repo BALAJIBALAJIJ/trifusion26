@@ -78,63 +78,25 @@ const RegistrationForm = () => {
 
   useEffect(() => {
     if (user?.id) {
-      // Fetch existing registration from API if needed
       const fetchRegistration = async () => {
         try {
           const res = await services.registrations.getMine();
-          // Backend returns ApiResponse<RegistrationResponse> where RegistrationResponse has { registration, payment }
           const responseData = res.data?.data;
           const existing = responseData?.registration;
-          const existingPayment = responseData?.payment;
           if (existing) {
-            setFormData(prev => ({
-              ...prev,
-              teamName: existing.teamName || '',
-              track: existing.track || '',
-              college: existing.collegeName || existing.college || '',
-              leader: {
-                ...prev.leader,
-                ...existing.leader,
-                name: existing.leader?.fullName || existing.leader?.name || prev.leader.name,
-                mobile: existing.leader?.phone || existing.leader?.mobile || prev.leader.mobile,
-                year: existing.leader?.yearOfStudy || existing.leader?.year || prev.leader.year,
-                rollNo: existing.leader?.rollNumber || existing.leader?.rollNo || prev.leader.rollNo,
-              },
-              members: (existing.members || prev.members).map(m => ({
-                ...m,
-                name: m.fullName || m.name,
-                mobile: m.phone || m.mobile,
-                college: m.collegeName || m.college || '',
-                year: m.yearOfStudy || m.year,
-                rollNo: m.rollNumber || m.rollNo,
-              })),
-              declaration: existing.declarationAccepted !== undefined ? existing.declarationAccepted : true,
-              rulesAgreed: existing.termsAccepted !== undefined ? existing.termsAccepted : true,
-            }));
-            setIsEditing(true);
-            
-            // Payment may come from the same response or from a separate call
-            if (existingPayment) {
-              setFormData(prev => ({
-                ...prev,
-                payment: {
-                  ...prev.payment,
-                  utr: existingPayment.utrNumber || '',
-                  amount: existingPayment.amount || BASE_PAYMENT,
-                }
-              }));
-              if (existingPayment.screenshotUrl) {
-                setScreenshotPreview(existingPayment.screenshotUrl);
-              }
-            }
+            // Registration already submitted — no editing allowed
+            toast.error('Your registration has already been submitted. Editing is not allowed.');
+            navigate('/participant/dashboard');
+            return;
           }
         } catch (err) {
-          console.log("No existing registration found or error fetching");
+          // 404 means no registration yet — that's fine, let them register
+          console.log("No existing registration found — proceeding with new registration");
         }
       };
       fetchRegistration();
     }
-  }, [user]);
+  }, [user, navigate]);
 
   const handleChange = (section, field, value, index = null) => {
     if (section === 'root') {

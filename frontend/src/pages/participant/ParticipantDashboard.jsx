@@ -46,12 +46,14 @@ const ParticipantDashboard = () => {
               <p className="text-gray-400 text-sm">{user?.email}</p>
             </div>
           </div>
-          <button 
-            onClick={() => navigate('/participant/registration')}
-            className="mt-4 md:mt-0 bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer"
-          >
-            {registration ? 'Edit Registration' : 'Start Registration'}
-          </button>
+          {!registration && (
+            <button 
+              onClick={() => navigate('/participant/registration')}
+              className="mt-4 md:mt-0 bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer"
+            >
+              Start Registration
+            </button>
+          )}
         </div>
 
         {/* Registration Status */}
@@ -111,11 +113,7 @@ const ParticipantDashboard = () => {
                     <span className="text-gray-400">Members</span>
                     <span className="font-medium text-white">{1 + (registration.members?.length || 0)}</span>
                   </div>
-                  <div className="pt-2">
-                    <button onClick={() => navigate('/participant/registration')} className="text-sm text-cyan-500 hover:text-cyan-400 flex items-center cursor-pointer">
-                      Edit Details <ChevronRight className="w-4 h-4 ml-1" />
-                    </button>
-                  </div>
+
                 </div>
               </div>
 
