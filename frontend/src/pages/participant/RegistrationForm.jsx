@@ -88,11 +88,24 @@ const RegistrationForm = () => {
               ...prev,
               teamName: existing.teamName || '',
               track: existing.track || '',
-              college: existing.collegeName || '',
-              leader: existing.leader || prev.leader,
-              members: existing.members || prev.members,
-              declaration: existing.declarationAccepted || true,
-              rulesAgreed: existing.termsAccepted || true,
+              college: existing.collegeName || existing.college || '',
+              leader: {
+                ...prev.leader,
+                ...existing.leader,
+                name: existing.leader?.fullName || existing.leader?.name || prev.leader.name,
+                mobile: existing.leader?.phone || existing.leader?.mobile || prev.leader.mobile,
+                year: existing.leader?.yearOfStudy || existing.leader?.year || prev.leader.year,
+                rollNo: existing.leader?.rollNumber || existing.leader?.rollNo || prev.leader.rollNo,
+              },
+              members: (existing.members || prev.members).map(m => ({
+                ...m,
+                name: m.fullName || m.name,
+                mobile: m.phone || m.mobile,
+                year: m.yearOfStudy || m.year,
+                rollNo: m.rollNumber || m.rollNo,
+              })),
+              declaration: existing.declarationAccepted !== undefined ? existing.declarationAccepted : true,
+              rulesAgreed: existing.termsAccepted !== undefined ? existing.termsAccepted : true,
             }));
             setIsEditing(true);
             

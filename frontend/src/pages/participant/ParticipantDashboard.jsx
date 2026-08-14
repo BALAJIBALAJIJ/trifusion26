@@ -77,7 +77,7 @@ const ParticipantDashboard = () => {
                 <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
                 <span className="text-emerald-400 font-medium">Registration Submitted</span>
                 <span className="text-gray-500 text-sm ml-auto">
-                  {new Date(registration.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  {new Date(registration.createdAt || registration.submittedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </span>
               </div>
             </div>
@@ -128,7 +128,7 @@ const ParticipantDashboard = () => {
                   <div className="p-3 bg-gray-900/50 rounded-lg border border-gray-800">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-xs bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded font-medium">Leader</span>
-                      <span className="text-white font-medium text-sm">{registration.leader?.name}</span>
+                      <span className="text-white font-medium text-sm">{registration.leader?.fullName || registration.leader?.name}</span>
                     </div>
                     <span className="text-gray-500 text-xs">{registration.leader?.email} · {registration.leader?.department}</span>
                   </div>
@@ -136,7 +136,7 @@ const ParticipantDashboard = () => {
                     <div key={i} className="p-3 bg-gray-900/50 rounded-lg border border-gray-800">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="text-xs bg-violet-500/20 text-violet-400 px-2 py-0.5 rounded font-medium">Member {i + 1}</span>
-                        <span className="text-white font-medium text-sm">{m.name}</span>
+                        <span className="text-white font-medium text-sm">{m.fullName || m.name}</span>
                       </div>
                       <span className="text-gray-500 text-xs">{m.email} · {m.department}</span>
                     </div>
