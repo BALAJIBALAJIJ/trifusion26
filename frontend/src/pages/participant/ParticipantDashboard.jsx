@@ -17,8 +17,9 @@ const ParticipantDashboard = () => {
       const fetchRegistration = async () => {
         try {
           const res = await services.registrations.getMine();
-          if (res.data?.data) {
-            setRegistration(res.data.data);
+          // Backend returns ApiResponse<RegistrationResponse> where RegistrationResponse has { registration, payment }
+          if (res.data?.data?.registration) {
+            setRegistration(res.data.data.registration);
           }
         } catch (err) {
           console.log("No registration found");

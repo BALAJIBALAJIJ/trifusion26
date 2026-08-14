@@ -17,28 +17,40 @@ const AdminDashboard = () => {
   const loadParticipants = useCallback(async () => {
     try {
       setLoading(true);
-      // Fetch registrations from API with high size to get all
+      // Fetch registrations list from API
       const res = await services.admin.getRegistrations({ size: 1000 });
       const regs = res.data?.data?.content || [];
       
-      // Map API response to the format expected by the dashboard
-      const mapped = regs.map(r => ({
-        id: r.id,
-        fullName: r.leader?.name || 'Unknown',
-        email: r.leader?.email || '',
-        registeredAt: r.createdAt || new Date().toISOString(),
-        registration: {
-          teamName: r.teamName,
-          track: r.track,
-          college: r.collegeName,
-          leader: r.leader,
-          members: r.members,
-          status: r.status,
-          submittedAt: r.createdAt,
-          payment: r.payment
-        },
-        payment: r.payment
-      }));
+      // For each registration, fetch details (which includes payment)
+      const mappedPromises = regs.map(async (r) => {
+        let payment = null;
+        try {
+          // getRegistrationDetails returns RegistrationResponse { registration, payment }
+          const detailRes = await services.admin.getRegistration(r.id);
+          payment = detailRes.data?.data?.payment || null;
+        } catch (e) {
+          // Payment may not exist
+        }
+        
+        return {
+          id: r.id,
+          fullName: r.leader?.fullName || 'Unknown',
+          email: r.leader?.email || '',
+          registeredAt: r.createdAt || new Date().toISOString(),
+          registration: {
+            teamName: r.teamName,
+            track: r.track,
+            college: r.collegeName,
+            leader: r.leader,
+            members: r.members,
+            status: r.status,
+            submittedAt: r.createdAt,
+          },
+          payment: payment
+        };
+      });
+      
+      const mapped = await Promise.all(mappedPromises);
       setParticipants(mapped);
     } catch (error) {
       console.error('Failed to load participants:', error);
@@ -72,7 +84,7 @@ const AdminDashboard = () => {
     const excelData = [];
     participants.forEach((p, index) => {
       const reg = p.registration;
-      
+      const pay = p.payment;
       // Base row with leader info
       const baseRow = {
         'S.No': index + 1,
@@ -104,11 +116,11 @@ const AdminDashboard = () => {
       }
 
       // Payment info (payment is now embedded in registration)
-      baseRow['Payment Status'] = reg?.status === 'PAID' ? 'PAID' : 'PENDING';
-      baseRow['Transaction/UTR ID'] = reg?.payment?.utr || 'N/A';
-      baseRow['Payment Amount'] = reg?.payment?.amount ? `₹${reg.payment.amount}` : 'N/A';
-      baseRow['Payment File'] = reg?.payment?.screenshotName || 'N/A';
-      baseRow['Paid At'] = reg?.payment?.paidAt ? new Date(reg.payment.paidAt).toLocaleString() : 'N/A';
+      baseRow['Payment Status'] = pay?.status || 'NO PAYMENT';
+      baseRow['Transaction/UTR ID'] = pay?.utrNumber || 'N/A';
+      baseRow['Payment Amount'] = pay?.amount ? `₹${pay.amount}` : 'N/A';
+      baseRow['Payment Screenshot'] = pay?.screenshotUrl || 'N/A';
+      baseRow['Submitted At'] = pay?.submittedAt ? new Date(pay.submittedAt).toLocaleString() : 'N/A';
       baseRow['Registration Date'] = reg?.submittedAt ? new Date(reg.submittedAt).toLocaleString() : 'N/A';
       baseRow['Google Sign-In Date'] = p.registeredAt ? new Date(p.registeredAt).toLocaleString() : 'N/A';
 
@@ -138,7 +150,7 @@ const AdminDashboard = () => {
   };
 
   const registeredCount = participants.filter(p => p.registration).length;
-  const paidCount = participants.filter(p => p.registration?.status === 'PAID' && p.registration?.payment?.utr).length;
+  const paidCount = participants.filter(p => p.payment).length;
   const todayCount = participants.filter(p => {
     const reg = new Date(p.registeredAt);
     const now = new Date();
@@ -309,18 +321,19 @@ const AdminDashboard = () => {
                             {pay ? (
                               <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                  <div><span className="text-xs text-gray-500 block">Amount</span><span className="text-sm font-bold text-emerald-600">₹1,600</span></div>
-                                  <div><span className="text-xs text-gray-500 block">Transaction/UTR ID</span><span className="text-sm font-medium text-gray-900">{pay.utr || 'N/A'}</span></div>
-                                  <div><span className="text-xs text-gray-500 block">Paid At</span><span className="text-sm font-medium text-gray-900">{pay.paidAt ? new Date(pay.paidAt).toLocaleString() : 'N/A'}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Amount</span><span className="text-sm font-bold text-emerald-600">₹{pay.amount || '1,600'}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Transaction/UTR ID</span><span className="text-sm font-medium text-gray-900">{pay.utrNumber || 'N/A'}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Status</span><span className="text-sm font-medium text-gray-900">{pay.status || 'PENDING'}</span></div>
+                                  <div><span className="text-xs text-gray-500 block">Submitted At</span><span className="text-sm font-medium text-gray-900">{pay.submittedAt ? new Date(pay.submittedAt).toLocaleString() : 'N/A'}</span></div>
                                 </div>
-                                {pay.screenshotData && (
+                                {pay.screenshotUrl && (
                                   <div>
                                     <span className="text-xs text-gray-500 block mb-2">Payment Screenshot</span>
                                     <img 
-                                      src={pay.screenshotData} 
+                                      src={pay.screenshotUrl} 
                                       alt="Payment proof" 
                                       className="max-w-[200px] rounded-lg border border-gray-300 cursor-pointer hover:opacity-80 transition-opacity"
-                                      onClick={() => setViewingScreenshot(pay.screenshotData)}
+                                      onClick={() => setViewingScreenshot(pay.screenshotUrl)}
                                     />
                                   </div>
                                 )}

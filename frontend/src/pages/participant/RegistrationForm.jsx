@@ -82,7 +82,10 @@ const RegistrationForm = () => {
       const fetchRegistration = async () => {
         try {
           const res = await services.registrations.getMine();
-          const existing = res.data?.data;
+          // Backend returns ApiResponse<RegistrationResponse> where RegistrationResponse has { registration, payment }
+          const responseData = res.data?.data;
+          const existing = responseData?.registration;
+          const existingPayment = responseData?.payment;
           if (existing) {
             setFormData(prev => ({
               ...prev,
@@ -101,6 +104,7 @@ const RegistrationForm = () => {
                 ...m,
                 name: m.fullName || m.name,
                 mobile: m.phone || m.mobile,
+                college: m.collegeName || m.college || '',
                 year: m.yearOfStudy || m.year,
                 rollNo: m.rollNumber || m.rollNo,
               })),
@@ -109,20 +113,18 @@ const RegistrationForm = () => {
             }));
             setIsEditing(true);
             
-            // Fetch payment status
-            const payRes = await services.payments.getMine();
-            const payData = payRes.data?.data;
-            if (payData) {
+            // Payment may come from the same response or from a separate call
+            if (existingPayment) {
               setFormData(prev => ({
                 ...prev,
                 payment: {
                   ...prev.payment,
-                  utr: payData.utrNumber || '',
-                  amount: payData.amount || PAYMENT_AMOUNT,
+                  utr: existingPayment.utrNumber || '',
+                  amount: existingPayment.amount || BASE_PAYMENT,
                 }
               }));
-              if (payData.screenshotUrl) {
-                setScreenshotPreview(payData.screenshotUrl);
+              if (existingPayment.screenshotUrl) {
+                setScreenshotPreview(existingPayment.screenshotUrl);
               }
             }
           }

@@ -30,10 +30,12 @@ const PaymentPage = () => {
         if(api?.registrations?.getMine) {
           try {
             const regRes = await api.registrations.getMine();
-            if (regRes.data) {
+            // Backend: ApiResponse<RegistrationResponse> → data.data.registration
+            const reg = regRes.data?.data?.registration;
+            if (reg) {
               let amount = 1600;
-              if (regRes.data.leader?.needsAccommodation) amount += 250;
-              (regRes.data.members || []).forEach(m => {
+              if (reg.leader?.needsAccommodation) amount += 250;
+              (reg.members || []).forEach(m => {
                 if (m.needsAccommodation) amount += 250;
               });
               setCalculatedAmount(amount);
@@ -45,7 +47,8 @@ const PaymentPage = () => {
         
         if(api?.payments?.getMine) {
           const res = await api.payments.getMine();
-          if (res.data) setExistingPayment(res.data);
+          // Backend: ApiResponse<PaymentResponse> → data.data
+          if (res.data?.data) setExistingPayment(res.data.data);
         }
       } catch {
         // Normal if not paid yet
@@ -122,7 +125,7 @@ const PaymentPage = () => {
             </div>
             <div className="flex justify-between border-b border-gray-800 pb-2 pt-1">
               <span className="text-gray-500">UTR / Ref No</span>
-              <span className="text-white font-medium">{existingPayment.utr}</span>
+              <span className="text-white font-medium">{existingPayment.utrNumber}</span>
             </div>
             <div className="flex justify-between pt-1">
               <span className="text-gray-500">Status</span>
