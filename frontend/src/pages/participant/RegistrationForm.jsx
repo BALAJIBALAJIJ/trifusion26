@@ -35,6 +35,7 @@ const ACCOMMODATION_FEE = 250;
 const UPI_ID = 'jbalajinadar8@okaxis';
 const ACCOUNT_NAME = 'BALAJI NADAR';
 const QR_URL = '/assets/payment-qr.png';
+const REGISTRATION_DEADLINE = '2026-09-05T23:59:59';
 
 const RegistrationForm = () => {
   const { user } = useAuth();
@@ -76,7 +77,13 @@ const RegistrationForm = () => {
 
   const [screenshotPreview, setScreenshotPreview] = useState(null);
 
+  // Check if registration deadline has passed
+  const isDeadlinePassed = new Date() > new Date(REGISTRATION_DEADLINE);
+
   useEffect(() => {
+    if (isDeadlinePassed) {
+      return; // Don't fetch anything, show closed message
+    }
     if (user?.id) {
       const fetchRegistration = async () => {
         try {
@@ -84,19 +91,38 @@ const RegistrationForm = () => {
           const responseData = res.data?.data;
           const existing = responseData?.registration;
           if (existing) {
-            // Registration already submitted — no editing allowed
             toast.error('Your registration has already been submitted. Editing is not allowed.');
             navigate('/participant/dashboard');
             return;
           }
         } catch (err) {
-          // 404 means no registration yet — that's fine, let them register
           console.log("No existing registration found — proceeding with new registration");
         }
       };
       fetchRegistration();
     }
-  }, [user, navigate]);
+  }, [user, navigate, isDeadlinePassed]);
+
+  // If deadline passed, show closed message
+  if (isDeadlinePassed) {
+    return (
+      <div className="min-h-screen bg-dark font-body text-gray-200 flex items-center justify-center p-6">
+        <div className="bg-dark-card border border-red-500/30 rounded-xl p-10 max-w-lg text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <h1 className="text-3xl font-heading font-bold text-red-400 mb-4">Registration Closed</h1>
+          <p className="text-gray-400 mb-6">
+            The registration period for TRIFUSION'26 has ended. Thank you for your interest!
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-3 rounded-lg font-medium transition-colors cursor-pointer"
+          >
+            Go to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleChange = (section, field, value, index = null) => {
     if (section === 'root') {

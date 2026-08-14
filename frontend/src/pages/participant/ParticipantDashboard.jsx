@@ -8,10 +8,13 @@ import services from '../../services/api';
 
 
 
+const REGISTRATION_DEADLINE = '2026-09-05T23:59:59';
+
 const ParticipantDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [registration, setRegistration] = useState(null);
+  const isDeadlinePassed = new Date() > new Date(REGISTRATION_DEADLINE);
   useEffect(() => {
     if (user?.id) {
       const fetchRegistration = async () => {
@@ -46,13 +49,18 @@ const ParticipantDashboard = () => {
               <p className="text-gray-400 text-sm">{user?.email}</p>
             </div>
           </div>
-          {!registration && (
+          {!registration && !isDeadlinePassed && (
             <button 
               onClick={() => navigate('/participant/registration')}
               className="mt-4 md:mt-0 bg-cyan-600 hover:bg-cyan-500 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer"
             >
               Start Registration
             </button>
+          )}
+          {!registration && isDeadlinePassed && (
+            <span className="mt-4 md:mt-0 bg-red-500/20 text-red-400 px-6 py-3 rounded-lg font-medium border border-red-500/30">
+              Registration Closed
+            </span>
           )}
         </div>
 
@@ -63,16 +71,23 @@ const ParticipantDashboard = () => {
           {!registration ? (
             <div className="text-center py-12">
               <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4 opacity-80" />
-              <h3 className="text-xl font-heading text-white mb-2">No Registration Found</h3>
+              <h3 className="text-xl font-heading text-white mb-2">
+                {isDeadlinePassed ? 'Registration Closed' : 'No Registration Found'}
+              </h3>
               <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                You haven&apos;t registered for TRIFUSION&apos;26 yet. Click the button below to start your team registration.
+                {isDeadlinePassed 
+                  ? 'The registration period for TRIFUSION\'26 has ended. Thank you for your interest!'
+                  : 'You haven\'t registered for TRIFUSION\'26 yet. Click the button below to start your team registration.'
+                }
               </p>
-              <button 
-                onClick={() => navigate('/participant/registration')}
-                className="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-3 rounded-lg font-medium transition-colors cursor-pointer"
-              >
-                Register Now →
-              </button>
+              {!isDeadlinePassed && (
+                <button 
+                  onClick={() => navigate('/participant/registration')}
+                  className="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-3 rounded-lg font-medium transition-colors cursor-pointer"
+                >
+                  Register Now →
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-3">
