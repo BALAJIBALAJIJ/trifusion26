@@ -51,7 +51,7 @@ const About = () => {
             { 
               icon: <Layers size={40} className="text-secondary mb-4" />, 
               title: "3 Departments", 
-              desc: "ECE, EEE, and BME joining forces for a multidisciplinary approach.",
+              desc: "ECE, EEE, and BME joining forces for an inter-collegiate approach.",
               border: "border-secondary/30",
               hoverBorder: "hover:border-secondary/60",
               glowColor: "hover:shadow-[0_0_30px_rgba(139,92,246,0.15)]",

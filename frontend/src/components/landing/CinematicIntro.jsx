@@ -101,7 +101,7 @@ const CinematicIntro = ({ onComplete }) => {
         </h1>
         
         <p className="intro-subtitle text-base md:text-2xl text-gray-300 font-body mb-6 max-w-2xl">
-          24-HOUR INTERNATIONAL INTERDISCIPLINARY HACKATHON
+          24-HOUR INTER-COLLEGIATE HACKATHON
         </p>
         
         <div className="intro-depts text-primary font-heading font-semibold text-lg md:text-xl tracking-widest">
