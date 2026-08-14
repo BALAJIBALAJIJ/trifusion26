@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsUpDown } from 'lucide-react';
 
 const DataTable = ({ columns, data, onRowClick }) => {

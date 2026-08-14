@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * CircuitBoardAnimation - ECE-themed animated background
@@ -74,7 +74,7 @@ const CircuitBoardAnimation = ({ className = '' }) => {
 
       // Draw circuit traces (connections)
       ctx.lineWidth = 0.5;
-      nodes.forEach((node, i) => {
+      nodes.forEach((node) => {
         node.connections.forEach(j => {
           const target = nodes[j];
           ctx.beginPath();
@@ -91,7 +91,7 @@ const CircuitBoardAnimation = ({ className = '' }) => {
       });
 
       // Draw nodes with pulse
-      nodes.forEach((node, i) => {
+      nodes.forEach((node) => {
         const pulse = Math.sin(time * 2 + node.pulsePhase) * 0.5 + 0.5;
         const alpha = 0.15 + pulse * 0.25;
         

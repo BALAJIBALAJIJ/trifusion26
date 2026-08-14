@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, Clock, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -48,7 +48,7 @@ const AdminRegistrationDetail = () => {
           setDetail(mockDetail);
           setNewStatus(mockDetail.registrationStatus);
         }
-      } catch (err) {
+      } catch {
         toast.error('Failed to load details');
       } finally {
         setLoading(false);
@@ -62,7 +62,7 @@ const AdminRegistrationDetail = () => {
       if(api?.admin?.verifyPayment) await api.admin.verifyPayment(id);
       toast.success('Payment verified successfully');
       setDetail(prev => ({...prev, payment: {...prev.payment, status: 'PAID'}}));
-    } catch (e) {
+    } catch {
       toast.error('Failed to verify payment');
     }
   };
@@ -74,7 +74,7 @@ const AdminRegistrationDetail = () => {
       toast.success('Payment rejected');
       setShowRejectModal(false);
       setDetail(prev => ({...prev, payment: {...prev.payment, status: 'REJECTED'}}));
-    } catch (e) {
+    } catch {
       toast.error('Failed to reject payment');
     }
   };
@@ -84,7 +84,7 @@ const AdminRegistrationDetail = () => {
       if(api?.admin?.updateStatus) await api.admin.updateStatus(id, { status: newStatus });
       toast.success('Status updated');
       setDetail(prev => ({...prev, registrationStatus: newStatus}));
-    } catch (e) {
+    } catch {
       toast.error('Failed to update status');
     }
   };

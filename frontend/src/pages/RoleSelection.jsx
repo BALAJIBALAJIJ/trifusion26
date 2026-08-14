@@ -26,7 +26,7 @@ const RoleSelection = () => {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-lg max-w-2xl mx-auto"
           >
-            Select your role to enter the TRIFUSION'26 portal.
+            Select your role to enter the TRIFUSION&apos;26 portal.
           </motion.p>
         </div>
 

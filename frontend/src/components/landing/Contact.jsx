@@ -1,5 +1,4 @@
-import React from 'react';
-import { Mail, MapPin, Phone, Users, GraduationCap } from 'lucide-react';
+import { Mail, MapPin, Users, GraduationCap } from 'lucide-react';
 
 const GOOGLE_MAPS_LINK = 'https://www.google.com/maps/place/Shree+Venkateshwara+Hi-Tech+Engineering+College/@11.1403316,77.4996336,17z/data=!3m1!4b1!4m6!3m5!1s0x3ba93f17e9e6017b:0xe3d715156d58259a!8m2!3d11.1403316!4d77.4996336!16s';
 const GOOGLE_MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.0!2d77.4996336!3d11.1403316!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba93f17e9e6017b%3A0xe3d715156d58259a!2sShree%20Venkateshwara%20Hi-Tech%20Engineering%20College!5e0!3m2!1sen!2sin!4v1691234567890!5m2!1sen!2sin';
@@ -30,8 +29,8 @@ const Contact = () => {
                   className="text-gray-400 hover:text-primary transition-colors text-sm leading-relaxed"
                 >
                   Shree Venkateshwara Hi-Tech Engineering College (Autonomous)<br/>
-                  CGV3+84V, Gobi Main Rd, Sri Kalaivani Nagar,<br/>
-                  Otthakkuthirai, Kuhalur, Tamil Nadu 638455
+                  Othakuthirai, Gobichettipalayam,<br/>
+                  Erode District, Tamil Nadu, India
                 </a>
               </div>
             </div>
@@ -58,15 +57,21 @@ const Contact = () => {
                 <h4 className="text-white font-bold mb-2 text-lg">Faculty Coordinators</h4>
                 <div className="space-y-2">
                   <div className="flex flex-col">
-                    <span className="text-gray-300 text-sm font-semibold">Dr. R.S. Kamalakannan</span>
-                    <a href="tel:+919894831480" className="text-gray-400 hover:text-accent transition-colors text-sm">
-                      +91 98948 31480
+                    <span className="text-gray-300 text-sm font-semibold">Mrs. G. Revathi <span className="text-gray-500">– AP/ECE</span></span>
+                    <a href="tel:+917812826937" className="text-gray-400 hover:text-accent transition-colors text-sm">
+                      +91 78128 26937
                     </a>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-gray-300 text-sm font-semibold">G. Revathi</span>
-                    <a href="tel:+917812826937" className="text-gray-400 hover:text-accent transition-colors text-sm">
-                      +91 78128 26937
+                    <span className="text-gray-300 text-sm font-semibold">K. C. Anandhan <span className="text-gray-500">– AP/EEE (Sr.G)</span></span>
+                    <a href="tel:+919787468182" className="text-gray-400 hover:text-accent transition-colors text-sm">
+                      +91 97874 68182
+                    </a>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-gray-300 text-sm font-semibold">K. Boopathi <span className="text-gray-500">– AP/BME</span></span>
+                    <a href="tel:+919597616173" className="text-gray-400 hover:text-accent transition-colors text-sm">
+                      +91 95976 16173
                     </a>
                   </div>
                 </div>
@@ -82,20 +87,20 @@ const Contact = () => {
                 <h4 className="text-white font-bold mb-2 text-lg">Student Coordinators</h4>
                 <div className="space-y-2">
                   <div className="flex flex-col">
-                    <span className="text-gray-300 text-sm font-semibold">T.S. Ashik</span>
+                    <span className="text-gray-300 text-sm font-semibold">Ashik T S <span className="text-gray-500">– III/ECE</span></span>
                     <a href="tel:+919489553313" className="text-gray-400 hover:text-primary transition-colors text-sm">+91 94895 53313</a>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-gray-300 text-sm font-semibold">J. Balaji</span>
+                    <span className="text-gray-300 text-sm font-semibold">Balaji J <span className="text-gray-500">– III/ECE</span></span>
                     <a href="tel:+919629001885" className="text-gray-400 hover:text-primary transition-colors text-sm">+91 96290 01885</a>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-gray-300 text-sm font-semibold">M. Balamuthiyan</span>
-                    <a href="tel:+917094681907" className="text-gray-400 hover:text-primary transition-colors text-sm">+91 70946 81907</a>
+                    <span className="text-gray-300 text-sm font-semibold">Naveen P <span className="text-gray-500">– III/ECE</span></span>
+                    <a href="tel:+919361052674" className="text-gray-400 hover:text-primary transition-colors text-sm">+91 93610 52674</a>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-gray-300 text-sm font-semibold">P. Naveen</span>
-                    <a href="tel:+919361052674" className="text-gray-400 hover:text-primary transition-colors text-sm">+91 93610 52674</a>
+                    <span className="text-gray-300 text-sm font-semibold">Balamuthaiyan M <span className="text-gray-500">– III/ECE</span></span>
+                    <a href="tel:+917094681907" className="text-gray-400 hover:text-primary transition-colors text-sm">+91 70946 81907</a>
                   </div>
                 </div>
               </div>

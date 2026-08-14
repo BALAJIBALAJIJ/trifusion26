@@ -1,7 +1,6 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Cpu, Zap, HeartPulse, Radio, BatteryCharging, Stethoscope } from 'lucide-react';
-import { DataStreamLine, PulseRing } from '../animations/ECEAnimations';
+import { Cpu, Zap, HeartPulse, BatteryCharging, Stethoscope } from 'lucide-react';
+import { DataStreamLine } from '../animations/ECEAnimations';
 
 const DepartmentCards = () => {
   return (
@@ -20,7 +19,7 @@ const DepartmentCards = () => {
           <h2 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">
             Collaborating <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">Departments</span>
           </h2>
-          <p className="text-gray-400">The powerhouse trio behind TRIFUSION'26</p>
+          <p className="text-gray-400">The powerhouse trio behind TRIFUSION&apos;26</p>
           
           {/* Signal divider */}
           <div className="mt-6 max-w-md mx-auto">

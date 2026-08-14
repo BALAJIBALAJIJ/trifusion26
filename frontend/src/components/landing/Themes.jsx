@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Wifi, Cpu, BatteryCharging, Car, Activity, ShieldCheck } from 'lucide-react';
 import { DataStreamLine } from '../animations/ECEAnimations';
@@ -8,7 +7,7 @@ const themes = [
     id: 1,
     dept: 'ECE',
     title: 'Intelligent Communication & Embedded Systems',
-    desc: 'Innovate with advanced communication protocols and smart embedded solutions.',
+    desc: 'Intelligent communication systems, embedded technologies, real-time systems and smart connected devices.',
     icon: <Wifi size={32} />,
     color: 'text-primary',
     bgColor: 'bg-primary',
@@ -20,7 +19,7 @@ const themes = [
     id: 2,
     dept: 'ECE',
     title: 'IoT, Automation & Edge Intelligence',
-    desc: 'Build automated systems and edge computing solutions for a connected world.',
+    desc: 'IoT systems, industrial automation, edge computing, intelligent monitoring and autonomous systems.',
     icon: <Cpu size={32} />,
     color: 'text-primary',
     bgColor: 'bg-primary',
@@ -32,7 +31,7 @@ const themes = [
     id: 3,
     dept: 'EEE',
     title: 'Smart Energy & Power Systems',
-    desc: 'Design efficient grids, renewable integration, and sustainable power solutions.',
+    desc: 'Energy monitoring, optimization, smart grids, renewable energy integration and intelligent power systems.',
     icon: <BatteryCharging size={32} />,
     color: 'text-secondary',
     bgColor: 'bg-secondary',
@@ -44,7 +43,7 @@ const themes = [
     id: 4,
     dept: 'EEE',
     title: 'Electric Mobility & Intelligent Power',
-    desc: 'Advance EV technologies, charging infrastructure, and smart power management.',
+    desc: 'Electric vehicles, battery management, charging systems, intelligent mobility and power optimization.',
     icon: <Car size={32} />,
     color: 'text-secondary',
     bgColor: 'bg-secondary',
@@ -56,7 +55,7 @@ const themes = [
     id: 5,
     dept: 'BME',
     title: 'Digital Healthcare & Biomedical Innovation',
-    desc: 'Create software and devices to revolutionize patient care and medical data.',
+    desc: 'Digital healthcare, biomedical systems, patient monitoring, healthcare automation and medical technology.',
     icon: <Activity size={32} />,
     color: 'text-accent',
     bgColor: 'bg-accent',
@@ -68,7 +67,7 @@ const themes = [
     id: 6,
     dept: 'BME',
     title: 'Assistive Technology & Patient Safety',
-    desc: 'Develop solutions that improve accessibility and ensure healthcare safety.',
+    desc: 'Assistive devices, accessibility, patient safety, elderly care, emergency monitoring and human-centric innovation.',
     icon: <ShieldCheck size={32} />,
     color: 'text-accent',
     bgColor: 'bg-accent',
@@ -101,7 +100,7 @@ const Themes = () => {
             transition={{ delay: 0.2 }}
             className="text-gray-400"
           >
-            Choose your domain. Build the future.
+            Select one preferred theme during registration. Problem statements will be assigned on the spot through lottery.
           </motion.p>
           
           {/* Signal divider */}

@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, Download, Clock, TrendingUp, Eye, X, ChevronDown, ChevronUp, IndianRupee, Image } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Users, UserPlus, Download, Clock, TrendingUp, X, ChevronDown, ChevronUp, IndianRupee } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import StatsCard from '../../components/admin/StatsCard';
 import { useAuth } from '../../contexts/AuthContext';
 import * as XLSX from 'xlsx';
 
 const AdminDashboard = () => {
-  const navigate = useNavigate();
   const { getAllParticipants } = useAuth();
   const [loading, setLoading] = useState(true);
   const [participants, setParticipants] = useState([]);
@@ -15,11 +13,7 @@ const AdminDashboard = () => {
   const [viewingScreenshot, setViewingScreenshot] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    loadParticipants();
-  }, []);
-
-  const loadParticipants = () => {
+  const loadParticipants = useCallback(() => {
     try {
       setLoading(true);
       const data = getAllParticipants();
@@ -37,7 +31,11 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [getAllParticipants]);
+
+  useEffect(() => {
+    loadParticipants();
+  }, [loadParticipants]);
 
   const filteredParticipants = participants.filter(p => {
     if (!searchQuery.trim()) return true;
@@ -60,7 +58,6 @@ const AdminDashboard = () => {
     const excelData = [];
     participants.forEach((p, index) => {
       const reg = p.registration;
-      const pay = p.payment;
       
       // Base row with leader info
       const baseRow = {

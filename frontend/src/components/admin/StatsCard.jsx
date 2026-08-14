@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 const StatsCard = ({ title, value, icon: Icon, color = 'cyan', delay = 0 }) => {

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, Search, RefreshCw, Users, Image, FileText } from 'lucide-react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import DataTable from '../../components/admin/DataTable';
 import StatusBadge from '../../components/admin/StatusBadge';
-import { useAuth } from '../../contexts/AuthContext';
 import * as XLSX from 'xlsx';
 
 // Helper to get registrations that have completed payment
@@ -17,11 +16,9 @@ const getPaidRegistrations = () => {
 };
 
 const AdminRegistrations = () => {
-  const { getAllParticipants } = useAuth();
   const [loading, setLoading] = useState(true);
   const [registrations, setRegistrations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
 
   const fetchData = () => {
     try {

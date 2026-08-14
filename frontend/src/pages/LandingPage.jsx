@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import CinematicIntro from '../components/landing/CinematicIntro';
 import Hero from '../components/landing/Hero';
 import About from '../components/landing/About';

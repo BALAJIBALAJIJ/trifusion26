@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Clock, Layers, Zap, Cpu, Radio, Activity } from 'lucide-react';
 import { SignalWaveVisualizer, DataStreamLine } from '../animations/ECEAnimations';
@@ -34,7 +33,7 @@ const About = () => {
             About <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">TRIFUSION</span>
           </h2>
           <p className="text-lg md:text-xl text-gray-400 font-body max-w-4xl mx-auto leading-relaxed">
-            TRIFUSION is a premier 24-hour international interdisciplinary hackathon organized collaboratively by the departments of ECE, EEE, and BME. It brings together brilliant minds to solve real-world challenges at the intersection of communication, energy, and healthcare.
+            TRIFUSION&apos;26 is a 24-hour offline inter-collegiate hackathon jointly organized by the Departments of ECE, EEE, and BME. The event challenges engineering students to transform real-world problem statements into innovative, practical and technology-driven solutions across intelligent communication, embedded systems, IoT, smart energy, digital healthcare, and assistive technology.
           </p>
         </motion.div>
 

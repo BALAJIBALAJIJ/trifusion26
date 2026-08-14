@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import ParticleField from '../three/ParticleField';
@@ -43,7 +43,7 @@ const useCountdown = (targetDate) => {
 };
 
 const Hero = () => {
-  const { timeLeft, isExpired } = useCountdown('2026-09-05T00:00:00');
+  const { timeLeft, isExpired } = useCountdown('2026-09-05T23:59:59');
   const navigate = useNavigate();
 
   return (
@@ -106,7 +106,7 @@ const Hero = () => {
                 <h2 className="text-[12px] leading-tight sm:text-base md:text-xl lg:text-2xl font-heading font-bold text-white tracking-wide">SHREE VENKATESHWARA HI-TECH ENGINEERING COLLEGE</h2>
                 <p className="text-primary font-heading font-semibold text-[10px] sm:text-xs md:text-sm mt-1 tracking-widest">AUTONOMOUS</p>
                 <p className="text-gray-400 text-[8px] sm:text-[10px] md:text-xs mt-1.5 leading-relaxed">Approved by AICTE, New Delhi & Affiliated to Anna University, Chennai</p>
-                <p className="text-gray-400 text-[8px] sm:text-[10px] md:text-xs leading-relaxed">Accredited by NAAC with 'A' Grade & NBA</p>
+                <p className="text-gray-400 text-[8px] sm:text-[10px] md:text-xs leading-relaxed">Accredited by NAAC with &apos;A&apos; Grade & NBA</p>
                 <p className="text-gray-500 text-[8px] sm:text-[10px] md:text-xs mt-1">Gobichettipalayam, Erode District, Tamilnadu, India</p>
               </div>
             </div>
@@ -157,7 +157,7 @@ const Hero = () => {
             transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
             style={{ backgroundSize: '200% 200%' }}
           >
-            TRIFUSION'26
+            TRIFUSION&apos;26
           </motion.h1>
           
           {/* Tagline with typewriter feel */}
@@ -225,7 +225,7 @@ const Hero = () => {
                 <span className="text-yellow-400 text-lg">⚠️</span>
               </div>
               <div className="grid grid-cols-4 gap-2 md:gap-6">
-              {Object.entries(timeLeft).map(([unit, value], idx) => (
+              {Object.entries(timeLeft).map(([unit, value]) => (
                 <motion.div 
                   key={unit} 
                   className="flex flex-col items-center p-2 sm:p-3 md:p-4 bg-dark-surface/60 backdrop-blur-md rounded-xl border border-gray-700 group hover:border-primary/40 transition-colors"

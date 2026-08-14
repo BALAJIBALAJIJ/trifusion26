@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from '../components/ui/Toast';
 import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
 import { motion } from 'framer-motion';
 import { GoogleLogin } from '@react-oauth/google';
 import BackButton from '../components/ui/BackButton';
@@ -64,7 +63,7 @@ const ParticipantAuth = () => {
               transition={{ delay: 0.3 }}
               className="text-3xl font-heading font-bold text-white mb-2"
             >
-              Join TRIFUSION'26
+              Join TRIFUSION&apos;26
             </motion.h1>
             
             <motion.p 

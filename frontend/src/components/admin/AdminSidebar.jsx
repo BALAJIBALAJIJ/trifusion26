@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Users, Download, Settings, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -27,7 +26,7 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
           <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold font-heading text-cyan-400">TRIFUSION'26</span>
+            <span className="text-xl font-bold font-heading text-cyan-400">TRIFUSION&apos;26</span>
           </div>
           <button className="md:hidden text-gray-400 hover:text-white" onClick={() => setIsOpen(false)}>
             <Menu className="w-6 h-6" />

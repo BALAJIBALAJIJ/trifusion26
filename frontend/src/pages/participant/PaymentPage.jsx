@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Copy, CheckCircle, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Upload, Copy, CheckCircle, AlertCircle, ShieldCheck, Clock } from 'lucide-react';
 import BackButton from '../../components/ui/BackButton';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
@@ -30,7 +30,7 @@ const PaymentPage = () => {
           const res = await api.payments.getMine();
           if (res.data) setExistingPayment(res.data);
         }
-      } catch (e) {
+      } catch {
         // Normal if not paid yet
       }
     };
@@ -130,7 +130,7 @@ const PaymentPage = () => {
           <h1 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2 tracking-wide">
             Registration Fee
           </h1>
-          <p className="text-gray-400">Complete your payment to confirm your team's participation</p>
+          <p className="text-gray-400">Complete your payment to confirm your team&apos;s participation</p>
         </div>
 
         {existingPayment?.status === 'REJECTED' && (

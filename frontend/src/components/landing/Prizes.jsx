@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Award, Sparkles } from 'lucide-react';
 import { DataStreamLine } from '../animations/ECEAnimations';
@@ -43,8 +42,9 @@ const Prizes = () => {
             >
               <Medal className="text-gray-300 w-8 h-8" />
             </motion.div>
-            <h3 className="text-2xl font-bold text-white mb-2">Runner Up</h3>
-            <p className="text-3xl font-black text-gray-300">TBA</p>
+            <h3 className="text-2xl font-bold text-white mb-2">🥈 Second Prize</h3>
+            <p className="text-3xl font-black text-gray-300">₹8,000</p>
+            <p className="text-gray-500 text-sm mt-1">+ Winner Certificate</p>
           </motion.div>
 
           {/* Winner */}
@@ -102,14 +102,15 @@ const Prizes = () => {
             >
               <Trophy className="text-primary w-10 h-10" />
             </motion.div>
-            <h3 className="text-3xl font-bold text-white mb-2">Winner</h3>
+            <h3 className="text-3xl font-bold text-white mb-2">🥇 First Prize</h3>
             <motion.p 
               className="text-4xl font-black text-primary"
               animate={{ opacity: [0.8, 1, 0.8] }}
               transition={{ duration: 2, repeat: Infinity }}
             >
-              TBA
+              ₹10,000
             </motion.p>
+            <p className="text-gray-400 text-sm mt-1">+ Winner Certificate</p>
             
             <div className="absolute bottom-0 left-0 right-0">
               <DataStreamLine color="primary" />
@@ -134,8 +135,9 @@ const Prizes = () => {
             >
               <Award className="text-amber-600 w-7 h-7" />
             </motion.div>
-            <h3 className="text-xl font-bold text-white mb-2">2nd Runner Up</h3>
-            <p className="text-2xl font-black text-amber-600">TBA</p>
+            <h3 className="text-xl font-bold text-white mb-2">🥉 Third Prize</h3>
+            <p className="text-2xl font-black text-amber-600">₹6,000</p>
+            <p className="text-gray-500 text-sm mt-1">+ Winner Certificate</p>
           </motion.div>
         </div>
 
@@ -145,8 +147,8 @@ const Prizes = () => {
           viewport={{ once: true }}
           className="text-center p-8 bg-dark-surface/50 border border-gray-800 rounded-2xl max-w-2xl mx-auto animate-shimmer hover:border-primary/20 transition-colors duration-500"
         >
-          <h3 className="text-2xl font-bold text-white mb-2">Special Awards</h3>
-          <p className="text-gray-400">Exciting special track prizes, sponsor API awards, and goodies for all participants.</p>
+          <h3 className="text-2xl font-bold text-white mb-2">All Participants</h3>
+          <p className="text-gray-400">All eligible participants will receive a Certificate of Participation. Certificates will be provided to winning teams physically and digitally.</p>
         </motion.div>
       </div>
     </section>

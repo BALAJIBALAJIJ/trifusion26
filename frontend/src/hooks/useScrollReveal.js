@@ -1,7 +1,9 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 
 const useScrollReveal = (options = { threshold: 0.1, rootMargin: '0px' }) => {
   const ref = useRef(null);
+  const { threshold, rootMargin } = options;
+  const memoizedOptions = useMemo(() => ({ threshold, rootMargin }), [threshold, rootMargin]);
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -13,7 +15,7 @@ const useScrollReveal = (options = { threshold: 0.1, rootMargin: '0px' }) => {
           // entry.target.classList.remove('reveal-active');
         }
       });
-    }, options);
+    }, memoizedOptions);
 
     const currentRef = ref.current;
     if (currentRef) {
@@ -25,9 +27,10 @@ const useScrollReveal = (options = { threshold: 0.1, rootMargin: '0px' }) => {
     return () => {
       if (currentRef) observer.unobserve(currentRef);
     };
-  }, [options.threshold, options.rootMargin]);
+  }, [memoizedOptions]);
 
   return ref;
 };
 
 export default useScrollReveal;
+

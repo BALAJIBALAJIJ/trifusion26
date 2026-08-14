@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 
 const CinematicIntro = ({ onComplete }) => {
@@ -97,7 +97,7 @@ const CinematicIntro = ({ onComplete }) => {
         </div>
         
         <h1 className="intro-title text-4xl md:text-7xl font-heading font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent mb-4 tracking-wider">
-          TRIFUSION'26
+          TRIFUSION&apos;26
         </h1>
         
         <p className="intro-subtitle text-base md:text-2xl text-gray-300 font-body mb-6 max-w-2xl">

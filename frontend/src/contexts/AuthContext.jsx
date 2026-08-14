@@ -207,12 +207,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Legacy login (kept for compatibility)
-  const login = async (email, password) => {
+  const login = async (_email, _password) => {
     throw { response: { data: { message: 'Please use "Continue with Google" to sign in.' } } };
   };
 
   // Legacy register (kept for compatibility)
-  const register = async (formData) => {
+  const register = async (_formData) => {
     throw { response: { data: { message: 'Please use "Continue with Google" to register.' } } };
   };
 

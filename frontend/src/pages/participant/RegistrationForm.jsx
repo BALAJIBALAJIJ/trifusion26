@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, ChevronRight, ChevronLeft, Upload, Copy, CheckCircle, CreditCard } from 'lucide-react';
 import BackButton from '../../components/ui/BackButton';
@@ -271,7 +271,7 @@ const RegistrationForm = () => {
       saveRegistration(user.id, finalData);
       toast.success('Registration & Payment submitted successfully! 🎉');
       navigate('/participant/dashboard');
-    } catch (e) {
+    } catch {
       toast.error('Failed to submit. Please try again.');
     } finally {
       setLoading(false);
@@ -286,7 +286,7 @@ const RegistrationForm = () => {
           <h1 className="text-3xl md:text-4xl font-heading font-bold text-white mb-2 tracking-wide">
             {isEditing ? 'Edit Registration' : 'Team Registration'}
           </h1>
-          <p className="text-gray-400">Join TRIFUSION'26 and build the future</p>
+          <p className="text-gray-400">Join TRIFUSION&apos;26 and build the future</p>
         </div>
 
         {/* Stepper */}
@@ -425,7 +425,7 @@ const RegistrationForm = () => {
                   <div className="flex-shrink-0 mt-1">
                     <input type="checkbox" checked={formData.rulesAgreed} onChange={(e) => handleChange('root', 'rulesAgreed', e.target.checked)} className="w-5 h-5 rounded border-gray-700 bg-gray-900 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-gray-900" />
                   </div>
-                  <span className="text-gray-300 group-hover:text-white transition-colors">I have read and agree to abide by the TRIFUSION'26 Hackathon Rules, Terms, and Conditions.</span>
+                  <span className="text-gray-300 group-hover:text-white transition-colors">I have read and agree to abide by the TRIFUSION&apos;26 Hackathon Rules, Terms, and Conditions.</span>
                 </label>
               </div>
             </div>

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, ChevronRight, AlertCircle, IndianRupee, Upload, CheckCircle2, Image, Copy } from 'lucide-react';
+import { Users, ChevronRight, AlertCircle } from 'lucide-react';
 import BackButton from '../../components/ui/BackButton';
 import { useAuth } from '../../contexts/AuthContext';
-import { toast } from '../../components/ui/Toast';
 
 // LocalStorage helpers
 const getMyRegistration = (userId) => {
@@ -60,7 +59,7 @@ const ParticipantDashboard = () => {
               <AlertCircle className="w-16 h-16 text-amber-500 mx-auto mb-4 opacity-80" />
               <h3 className="text-xl font-heading text-white mb-2">No Registration Found</h3>
               <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                You haven't registered for TRIFUSION'26 yet. Click the button below to start your team registration.
+                You haven&apos;t registered for TRIFUSION&apos;26 yet. Click the button below to start your team registration.
               </p>
               <button 
                 onClick={() => navigate('/participant/registration')}

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const StatusBadge = ({ status }) => {
   const getStatusStyles = (status) => {
     const s = (status || '').toUpperCase();
