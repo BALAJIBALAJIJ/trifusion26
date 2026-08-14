@@ -31,7 +31,7 @@ public class RegistrationRequest {
     private TeamMember leader;
     
     @NotNull(message = "Team members are required")
-    @Size(min = 2, max = 4, message = "Team must have 3 to 5 members in total (leader + 2 to 4 members)")
+    @Size(min = 1, max = 3, message = "Team must have 2 to 4 members in total (leader + 1 to 3 members)")
     @Valid
     private List<TeamMember> members;
     

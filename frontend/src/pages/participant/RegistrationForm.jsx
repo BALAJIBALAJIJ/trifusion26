@@ -46,7 +46,7 @@ const RegistrationForm = () => {
 
   const [formData, setFormData] = useState({
     teamName: '',
-    track: 'On Spot Problem Statement',
+    track: '',
     college: '',
     leader: {
       name: user?.fullName || user?.name || '',
@@ -215,16 +215,26 @@ const RegistrationForm = () => {
         toast.error('Please fill all leader details');
         return false;
       }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        toast.error('Leader email format is invalid');
+        return false;
+      }
       const leaderDigits = mobile.replace(/\D/g, '');
       if (leaderDigits.length !== 10) {
         toast.error('Leader mobile number must be exactly 10 digits');
         return false;
       }
     } else if (currentStep === 2) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       for (let i = 0; i < formData.members.length; i++) {
         const m = formData.members[i];
         if (!m.name || !m.email || !m.mobile || !m.college || !m.department || !m.year || !m.rollNo || !m.gender) {
           toast.error(`Please fill all details for Member ${i + 1}`);
+          return false;
+        }
+        if (!emailRegex.test(m.email)) {
+          toast.error(`Member ${i + 1} email format is invalid`);
           return false;
         }
         const memberDigits = m.mobile.replace(/\D/g, '');
