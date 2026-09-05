@@ -15,7 +15,7 @@ jwt:
   expiration: 86400000
 admin:
   email: ${ADMIN_EMAIL:svhectrifusion2026@gmail.com}
-  password: ${ADMIN_PASSWORD:svhec@73255}
+  password: ${ADMIN_PASSWORD:svhec@73201}
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME:placeholder}
   api-key: ${CLOUDINARY_API_KEY:placeholder}
