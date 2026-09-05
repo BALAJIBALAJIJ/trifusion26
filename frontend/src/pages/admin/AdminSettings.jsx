@@ -7,7 +7,7 @@ const AdminSettings = () => {
 
   // These match the hardcoded credentials in AuthContext.jsx
   const adminEmail = 'svhectrifusion2026@gmail.com';
-  const adminPassword = 'svhec@7325';
+  const adminPassword = 'svhec@73255';
 
   return (
     <AdminLayout title="Settings">

@@ -18,7 +18,7 @@ const RoleSelection = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl md:text-5xl font-heading font-bold mb-4 neon-text"
           >
-            Choose Your Path
+            Admin Portal
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -26,33 +26,29 @@ const RoleSelection = () => {
             transition={{ delay: 0.2 }}
             className="text-gray-400 text-lg max-w-2xl mx-auto"
           >
-            Select your role to enter the TRIFUSION&apos;26 portal.
+            Sign in to access the TRIFUSION&apos;26 command center.
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          <motion.div
-             initial={{ opacity: 0, x: -50 }}
-             animate={{ opacity: 1, x: 0 }}
-             transition={{ delay: 0.3 }}
-          >
-            <Link to="/participant/register" className="block h-full">
-              <Card variant="glow" className="h-full p-8 flex flex-col items-center justify-center text-center group min-h-[300px]">
-                <div className="w-20 h-20 bg-primary/20 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-10 h-10 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  </svg>
-                </div>
-                <h2 className="text-2xl font-heading font-bold mb-3 group-hover:text-primary transition-colors">Participant</h2>
-                <p className="text-gray-400">Join the hackathon, form teams, submit projects, and compete for glory.</p>
-              </Card>
-            </Link>
-          </motion.div>
+        {/* Registration Closed Banner */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="max-w-xl mx-auto mb-8"
+        >
+          <div className="text-center p-5 bg-red-500/10 border border-red-500/30 rounded-2xl backdrop-blur-md">
+            <span className="text-xl md:text-2xl font-heading font-bold text-red-400">🚫 Registration Closed</span>
+            <p className="text-gray-400 text-sm mt-2">Participant registration for TRIFUSION&apos;26 has ended. Thank you for your interest!</p>
+          </div>
+        </motion.div>
 
+        <div className="flex justify-center max-w-md mx-auto">
           <motion.div
-             initial={{ opacity: 0, x: 50 }}
-             animate={{ opacity: 1, x: 0 }}
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
              transition={{ delay: 0.4 }}
+             className="w-full"
           >
             <Link to="/admin/login" className="block h-full">
               <Card variant="glow" className="h-full p-8 flex flex-col items-center justify-center text-center group min-h-[300px] hover:border-secondary/50 hover:shadow-[0_0_20px_rgba(139,92,246,0.2)]">

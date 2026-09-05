@@ -256,7 +256,7 @@ const Hero = () => {
           className="flex flex-col sm:flex-row gap-4"
         >
           <motion.button 
-            onClick={() => navigate('/login')}
+            onClick={() => navigate('/admin/login')}
             className="px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-lg transition-all transform cursor-pointer relative overflow-hidden group"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.98 }}
@@ -273,7 +273,7 @@ const Hero = () => {
           >
             {/* Shimmer effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-            <span className="relative z-10">Register Now</span>
+            <span className="relative z-10">Admin Login</span>
           </motion.button>
         </motion.div>
       </div>

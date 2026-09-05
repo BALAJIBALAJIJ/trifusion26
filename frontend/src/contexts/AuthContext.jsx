@@ -7,7 +7,7 @@ export const useAuth = () => useContext(AuthContext);
 
 // Admin credentials (hardcoded fallback)
 const ADMIN_EMAIL = 'svhectrifusion2026@gmail.com';
-const ADMIN_PASSWORD = 'svhec@7325';
+const ADMIN_PASSWORD = 'svhec@73255';
 
 // Helper to get participants from localStorage (fallback)
 const getStoredParticipants = () => {
